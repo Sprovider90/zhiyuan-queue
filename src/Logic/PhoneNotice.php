@@ -6,9 +6,9 @@
  * Time: 13:13
  */
 
-namespace Sprovider90\ZhiyuanQueue\Logic;
+namespace Sprovider90\Zhiyuanqueue\Logic;
 use AlibabaCloud\Client\AlibabaCloud;
-use Sprovider90\ZhiyuanQueue\Factory\Monolog;
+use Sprovider90\Zhiyuanqueue\Factory\Monolog;
 class PhoneNotice implements Icommand
 {
     /**

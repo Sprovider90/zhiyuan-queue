@@ -6,11 +6,11 @@
  * Time: 13:12
  */
 
-namespace Sprovider90\ZhiyuanQueue\Logic;
+namespace Sprovider90\Zhiyuanqueue\Logic;
 
 /**
  * Class Message
- * @package Sprovider90\ZhiyuanQueue\Logic
+ * @package Sprovider90\Zhiyuanqueue\Logic
  * 接收任何往redis写入的数据来生成系统消息数据
  */
 class Message implements Icommand

@@ -6,7 +6,7 @@
  * Time: 15:17
  */
 
-namespace Sprovider90\ZhiyuanQueue\Helper;
+namespace Sprovider90\Zhiyuanqueue\Helper;
 
 
 class Clihelper

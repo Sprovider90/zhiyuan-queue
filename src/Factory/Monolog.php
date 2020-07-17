@@ -6,7 +6,7 @@
  * Time: 14:02
  */
 
-namespace Sprovider90\ZhiyuanQueue\Factory;
+namespace Sprovider90\Zhiyuanqueue\Factory;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 

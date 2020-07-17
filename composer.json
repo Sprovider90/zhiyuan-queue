@@ -4,7 +4,7 @@
     "keywords": ["composer", "package", "php", "package-builder"],
     "autoload": {
         "psr-4": {
-            "Sprovider90\\ZhiyuanQueue\\": "src"
+            "Sprovider90\\Zhiyuanqueue\\": "src"
         }
     },
     "autoload-dev": {

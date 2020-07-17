@@ -6,10 +6,10 @@
  * Time: 15:45
  */
 
-namespace Sprovider90\ZhiyuanQueue\Factory;
+namespace Sprovider90\Zhiyuanqueue\Factory;
 
 
-use Sprovider90\ZhiyuanQueue\Logic\Icommand;
+use Sprovider90\Zhiyuanqueue\Logic\Icommand;
 
 class CommandFactory
 {

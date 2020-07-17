@@ -6,7 +6,7 @@
  * Time: 15:39
  */
 
-namespace Sprovider90\ZhiyuanQueue\Logic;
+namespace Sprovider90\Zhiyuanqueue\Logic;
 
 
 interface Icommand

@@ -11,8 +11,8 @@
 
 namespace Sprovider90\Zhiyuanqueue\Commands;
 
-use Sprovider90\ZhiyuanQueue\Factory\CommandFactory;
-use Sprovider90\ZhiyuanQueue\Logic\Message;
+use Sprovider90\Zhiyuanqueue\Factory\CommandFactory;
+use Sprovider90\Zhiyuanqueue\Logic\Message;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,7 +49,9 @@ class BuildCommand extends Command
     {
         $optional_argument = $input->getArgument('taskname');
         if(in_array($optional_argument,["Message","WarningSms","PhoneNotice"])){
-            new CommandFactory(new $optional_argument());
+            $obj="Sprovider90\Zhiyuanqueue\Logic\\".$optional_argument;
+            $fac=new CommandFactory(new $obj());
+            $fac->run();
         }
 
     }
