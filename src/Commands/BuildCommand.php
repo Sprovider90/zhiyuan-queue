@@ -17,6 +17,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Sprovider90\Zhiyuanqueue\Factory\Monolog;
+use Sprovider90\Zhiyuanqueue\Factory\Config;
 
 /**
  * Class BuildCommand.
@@ -49,6 +51,9 @@ class BuildCommand extends Command
     {
         $optional_argument = $input->getArgument('taskname');
         if(in_array($optional_argument,["Message","WarningSms","PhoneNotice"])){
+            //注册monolog
+            $monolog=Config::get("Monolog");
+            Monolog::register($optional_argument,$monolog["path"]);
             $obj="Sprovider90\Zhiyuanqueue\Logic\\".$optional_argument;
             $fac=new CommandFactory(new $obj());
             $fac->run();

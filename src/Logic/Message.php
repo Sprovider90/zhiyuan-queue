@@ -8,6 +8,8 @@
 
 namespace Sprovider90\Zhiyuanqueue\Logic;
 
+use Sprovider90\Zhiyuanqueue\Factory\Config;
+
 /**
  * Class Message
  * @package Sprovider90\Zhiyuanqueue\Logic
@@ -16,8 +18,8 @@ namespace Sprovider90\Zhiyuanqueue\Logic;
 class Message implements Icommand
 {
     function test_rpush(){
-        $client = new \Predis\Client('tcp://127.0.0.1:63790');
-
+        $redisConfig=Config::get("Redis");
+        $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
         $client->rpush('messagelist', time());
 
 
@@ -27,8 +29,9 @@ class Message implements Icommand
         if (ob_get_level()) {
             ob_end_clean();
         }
+        $redisConfig=Config::get("Redis");
         while (true) {
-            $client = new \Predis\Client('tcp://127.0.0.1:63790');
+            $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
             $str=$client->lpop('messagelist');
             if (!empty($str) && is_array($str)) {
                 $data=json_decode($str);

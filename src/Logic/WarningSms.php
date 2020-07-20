@@ -8,6 +8,7 @@
 
 namespace Sprovider90\Zhiyuanqueue\Logic;
 use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
+use Sprovider90\Zhiyuanqueue\Model\Orm;
 
 /**
  * Class WarningSms
@@ -72,6 +73,10 @@ class WarningSms implements Icommand
      */
     public function deal($yingjian,$file){
         $file=str_replace("yingjian","prokz",$file);
+        while(!is_file($file)){
+            CliHelper::cliEcho("no new prokz file come sleep 1s");
+            sleep(1);
+        }
 
         $kzs=file_get_contents($file);
         $kzarr=json_decode($kzs);
@@ -79,9 +84,47 @@ class WarningSms implements Icommand
         $this->dealKzData($kzarr);
         $this->mergeData($kzarr,$yingjian);
         $points=$this->getTriggerPonits($yingjian);
-        print_r($points);exit;
+
+        $this->saveToMysql($points);
 
 
+    }
+
+    function saveToMysql($data)
+    {
+        $data=$this->TurnDataToMysql($data);
+        if(!empty($data)){
+            $db=new Orm();
+            $db->insert("warnigs",$data);
+        }
+
+    }
+    function TurnDataToMysql($data)
+    {
+        $result=[];
+        if(!empty($data)){
+            foreach ($data as $k=>$v) {
+                $tmp=[];
+                $tmp_threshold_keys="";
+
+                foreach ($v as $v_k=>$v_v) {
+
+                    if($v_k==0){
+                        $tmp["project_id"]=$v_v["projectId"];
+                        $tmp["point_id"]=$v_v["monitorId"];
+                        $tmp["waring_time"]=$v_v["timestamp"];
+                        $tmp["created_at"]=date('Y-m-d H:i:s',time());
+                        $tmp["originaldata"]=json_encode($v);
+                    }
+
+                    $tmp_threshold_keys.=$v_v["trigger_zhibiao"].",";
+
+                }
+                $tmp["threshold_keys"]=substr($tmp_threshold_keys,0,-1);
+                $result[]=$tmp;
+            }
+        }
+        return $result;
     }
     function dealKzData(&$kzarr)
     {
@@ -118,7 +161,7 @@ class WarningSms implements Icommand
                     //触发预警消息列表
                     if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k]) {
 
-                        $result[$yingjian_v["projectId"]][$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["trigger_zhibiao" => $k]);
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["trigger_zhibiao" => $k]);
                     }
                 }
             }

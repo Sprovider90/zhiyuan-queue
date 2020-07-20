@@ -12,15 +12,15 @@ use Monolog\Handler\StreamHandler;
 
 class Monolog
 {
-    protected static $log;
-    private function __construct(){
-        self::$log = new Logger('name');
-        self::$log->pushHandler(new StreamHandler('/runtime.log', Logger::WARNING));
+    static $log = [];
+    public static function register($name,$path)
+    {
+        self::$log = new Logger($name);
+        self::$log->pushHandler(new StreamHandler($path."/runtime.log", Logger::INFO));
     }
-    static function getInstance(){
-        if(!self::$log){
-            new self();
-        }
+    public static function get()
+    {
         return self::$log;
     }
+
 }

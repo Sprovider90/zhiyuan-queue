@@ -7,8 +7,11 @@
  */
 
 namespace Sprovider90\Zhiyuanqueue\Logic;
-use AlibabaCloud\Client\AlibabaCloud;
-use Sprovider90\Zhiyuanqueue\Factory\Monolog;
+use Sprovider90\Zhiyuanqueue\Model\Orm;
+use Sprovider90\Zhiyuanqueue\Factory\NotNotice;
+use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
+
+
 class PhoneNotice implements Icommand
 {
     /**
@@ -16,36 +19,59 @@ class PhoneNotice implements Icommand
      */
     function run(){
         //判断发送
-        $this->sendsms();
-    }
-    public  function sendsms()
-    {
-        $mobile="";
-        AlibabaCloud::accessKeyClient("", "")
-            ->regionId('cn-hangzhou') // replace regionId as you need
-            ->asGlobalClient();
+        while (true) {
+            $db = new Orm();
+            $sql = "SELECT
+                         a.*,b.id as projects_waring_setting_id,b.remind_time,b.percentage,b.notice_start_time,b.notice_end_time,notice_phone
+                    FROM
+                        `warnigs` a
+                    LEFT JOIN projects_waring_setting b ON a.project_id = b.project_id
+                    WHERE
+                        
+                        a.id > (
+                            SELECT
+                                IFNULL(MAX(warnigs_id),0)
+                            FROM
+                                phonenotice
+                        ) order by a.id asc limit 1;";
+            $rs = $db->getAll($sql);
 
-        try {
-            $result = AlibabaCloud::rpcRequest()
-                ->product('Dysmsapi')
-                // ->scheme('https') // https | http
-                ->version('2017-05-25')
-                ->action('SendSms')
-                ->method('POST')
-                ->options([
-                    'query' => [
-                        'PhoneNumbers' => $mobile,
-                        'SignName' => "至源",
-                        'TemplateCode' => "SMS_195870858",
-                        'TemplateParam' => json_encode(["proshortname" =>"天上人间","pointname"=>"客厅","target"=>"甲醛"])
-                    ],
-                ])
-                ->request();
-            Monolog::getInstance()->info('shortmessage_response' . print_r(func_get_args(), true) . "result:" . print_r($result->toArray(), true));
-        } catch (ClientException $e) {
-            Monolog::getInstance()->error('shortmessage_response_err ' . print_r(func_get_args(), true) . " err:" . $e->getErrorMessage());
-        } catch (ServerException $e) {
-            Monolog::getInstance()->error('shortmessage_response_err ' . print_r(func_get_args(), true) . " err:" . $e->getErrorMessage());
+            if($rs) {
+                $rs=$rs[0];
+                $notNotice=new NotNotice($rs);
+                list($is_send,$no_send_reason)=$notNotice->init()->CheckData()->isPercentage()->noBetweenNoticeTime()->frequency()->notice()->getResult();
+
+                $data=$this->TurnDataToMysql($rs,$is_send,$no_send_reason);
+                $this->saveToMysql($data);
+            }else{
+                CliHelper::cliEcho(" no data sleep 1s");
+                sleep(1);
+            }
+            CliHelper::cliEcho("sleep 100ms");
+            usleep(100);
+
         }
     }
+    function saveToMysql($data)
+    {
+
+        if(!empty($data)){
+            $db=new Orm();
+            $db->insert("phonenotice",$data);
+        }
+
+    }
+    function TurnDataToMysql($data,$is_send,$no_send_reason)
+    {
+        $result=[];
+        $result["warnigs_id"]=$data["id"];
+        $result["projectsetting_kz_json"]=json_encode($data);
+        $result["is_send"]=$is_send;
+        $result["project_id"]=$data["project_id"];
+        $result["no_send_reason"]=$no_send_reason;
+        $result["created_at"]=date('Y-m-d H:i:s',time());;
+        return $result;
+    }
+
+
 }
