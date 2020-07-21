@@ -8,7 +8,9 @@
 
 namespace Sprovider90\Zhiyuanqueue\Logic;
 
+use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
 use Sprovider90\Zhiyuanqueue\Factory\Config;
+use Sprovider90\Zhiyuanqueue\Factory\MessageDeal;
 
 /**
  * Class Message
@@ -17,14 +19,6 @@ use Sprovider90\Zhiyuanqueue\Factory\Config;
  */
 class Message implements Icommand
 {
-    function test_rpush(){
-        $redisConfig=Config::get("Redis");
-        $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
-        $client->rpush('messagelist', time());
-
-
-
-    }
     function run (){
         if (ob_get_level()) {
             ob_end_clean();
@@ -33,13 +27,16 @@ class Message implements Icommand
         while (true) {
             $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
             $str=$client->lpop('messagelist');
-            if (!empty($str) && is_array($str)) {
+            if (!empty($str)) {
                 $data=json_decode($str);
+
                 if(empty($data)){
-                    echo "data empty";
+                    CliHelper::cliEcho("data empty");
                 }
                 $this->dealsms($data);
             }
+            CliHelper::cliEcho("sleep 100ms");
+            usleep(100);
         }
 
         flush();
@@ -49,7 +46,14 @@ class Message implements Icommand
     /**
      * 1.入库
      */
-    function dealsms(){
+    function dealsms($data){
+        $message=new MessageDeal($data);
+        try {
+            $message->checkCommon()->createAndCheckStageData()->checkStageContent()->checkUsers()->saveSms()->saveUserSms();
+        }catch (InvalidArgumentException $e){
+
+            CliHelper::cliEcho(print_r($data,true).$e->getMessage());
+        }
 
     }
 }

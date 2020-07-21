@@ -69,7 +69,7 @@ class PhoneNotice implements Icommand
         $result["is_send"]=$is_send;
         $result["project_id"]=$data["project_id"];
         $result["no_send_reason"]=$no_send_reason;
-        $result["created_at"]=date('Y-m-d H:i:s',time());;
+        $result["created_at"]=date('Y-m-d H:i:s',time());
         return $result;
     }
 
