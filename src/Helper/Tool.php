@@ -13,10 +13,12 @@ class Tool
 {
     public static function combine_template($param, $template)
     {
+
+
         $result = "";
         if (!empty($param)) {
             foreach ($param as $key => $value) {
-                $template = str_replace('${' . $key . '}', $value, $template);
+                $template = str_replace('{' . $key . '}', $value, $template);
             }
         }
         $result = $template;

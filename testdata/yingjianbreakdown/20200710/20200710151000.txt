@@ -1,0 +1,18 @@
+[
+  {
+    "deviceId": "000000001d82",
+    "monitorId": "151",
+    "projectId": "33",
+    "timestamp": "2020-07-15 12:30:00.000",
+    "breakdownType": "1",
+    "breakdownInfo":"这是故障说明，便于程序定位和bug校验"
+  },
+  {
+    "deviceId": "000000001d85",
+    "monitorId": "152",
+    "projectId": "40",
+    "timestamp": "2020-07-15 12:30:00.000",
+    "breakdownType": "2",
+    "breakdownInfo":"这是故障说明，便于程序定位和bug校验"
+  }
+]

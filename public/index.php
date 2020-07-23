@@ -18,11 +18,7 @@ $dotenv->load();
 //config
 \Sprovider90\Zhiyuanqueue\Factory\Config::register("../src/Config");
 
-//test
-//while (1){
-    $mes=new Message();
-    $mes->test_rpush();
-//}
+
 
 //run
 $builder = new Application('zhiyuanqueue', '@package_version@');

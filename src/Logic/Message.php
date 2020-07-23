@@ -11,6 +11,7 @@ namespace Sprovider90\Zhiyuanqueue\Logic;
 use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
 use Sprovider90\Zhiyuanqueue\Factory\Config;
 use Sprovider90\Zhiyuanqueue\Factory\MessageDeal;
+use Sprovider90\Zhiyuanqueue\Helper\Clihelper;
 
 /**
  * Class Message
@@ -28,7 +29,7 @@ class Message implements Icommand
             $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
             $str=$client->lpop('messagelist');
             if (!empty($str)) {
-                $data=json_decode($str);
+                $data=json_decode($str,true);
 
                 if(empty($data)){
                     CliHelper::cliEcho("data empty");
@@ -37,6 +38,7 @@ class Message implements Icommand
             }
             CliHelper::cliEcho("sleep 100ms");
             usleep(100);
+
         }
 
         flush();

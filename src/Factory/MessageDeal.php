@@ -10,7 +10,7 @@ namespace Sprovider90\Zhiyuanqueue\Factory;
 
 use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
 use Sprovider90\Zhiyuanqueue\Helper\Tool;
-use Sprovider90\ZhiyuanQueue\Model\Orm;
+use Sprovider90\Zhiyuanqueue\Model\Orm;
 use Sprovider90\Zhiyuanqueue\Model\Redis;
 use Sprovider90\Zhiyuanqueue\Model\zhiyuanData;
 
@@ -25,7 +25,7 @@ class MessageDeal
     public function __construct($data)
     {
         $this->smsData=$data;
-        $this->messageTemplate=Config::get("Message");
+        $this->messageTemplate=Config::get("MessageTemplate");
         return $this;
     }
     function checkCommon(){
@@ -40,7 +40,8 @@ class MessageDeal
         }
         return $this;
     }
-    function createAndCheckStageData($data){
+    function createAndCheckStageData(){
+        $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
         $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
         $this->getOtherData($this->smsData);
         $this->content=Tool::combine_template($this->smsData,$this->messageTemplate[$this->smsData["stage"]]["template"]);
@@ -71,6 +72,7 @@ class MessageDeal
         $data["type"]=$this->type;
         $data["content"]=$this->content;
         $data["rev_users"]=json_encode($this->rev_users);
+        $data["send_time"]=date('Y-m-d H:i:s',$this->smsData['time']);
         $data["created_at"]=date('Y-m-d H:i:s',$time);
 
         $this->smsRedisData['sms_id']=$db->insert("message",$data);
@@ -80,7 +82,10 @@ class MessageDeal
         return $this;
     }
     function saveUserSms(){
-        extract($this->smsData);
+        $user_ids=$this->smsRedisData["user_ids"];
+        $smstype=$this->smsRedisData["smstype"];
+        $sms_id=$this->smsRedisData["sms_id"];
+        $sms_time=$this->smsRedisData["sms_time"];
         $redis=new Redis();
         foreach ($user_ids as $k=>$user_id) {
             $redis->zadd("smsuser:" . $user_id, $smstype . $sms_time, $sms_id);

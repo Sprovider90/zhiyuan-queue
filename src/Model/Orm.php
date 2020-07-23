@@ -30,7 +30,7 @@ class Orm
     }
     function insert($table_name,$data=[]){
         $this->database->insert($table_name,$data);
-
+        return $this->database->id();
     }
     function getAll($sql){
 
