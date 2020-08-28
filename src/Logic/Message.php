@@ -51,7 +51,7 @@ class Message implements Icommand
     function dealsms($data){
         $message=new MessageDeal($data);
         try {
-            $message->checkCommon()->createAndCheckStageData()->checkStageContent()->checkUsers()->saveSms()->saveUserSms();
+            $message->checkCommon()->createAndCheckStageData()->checkStageContent()->checkUsers()->saveSms();
         }catch (InvalidArgumentException $e){
 
             CliHelper::cliEcho(print_r($data,true).$e->getMessage());

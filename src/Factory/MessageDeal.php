@@ -68,30 +68,35 @@ class MessageDeal
     function saveSms(){
         $time=time();
         $db=new Orm();
-        $data=[];
-        $data["type"]=$this->type;
-        $data["content"]=$this->content;
-        $data["rev_users"]=json_encode($this->rev_users);
-        $data["send_time"]=date('Y-m-d H:i:s',$this->smsData['time']);
-        $data["created_at"]=date('Y-m-d H:i:s',$time);
+        foreach ($this->rev_users as $key => $value) {
+            # code...
+            $data=[];
+            $data["type"]=$this->type;
+            $data["content"]=$this->content;
+            $data["rev_users"]=json_encode($this->rev_users);
+            $data["user_id"]=$value;
+            $data["send_time"]=date('Y-m-d H:i:s',$this->smsData['time']);
+            $data["created_at"]=date('Y-m-d H:i:s',$time);
 
-        $this->smsRedisData['sms_id']=$db->insert("message",$data);
-        $this->smsRedisData['sms_time']=$time;
-        $this->smsRedisData['smstype']=$this->type;
-        $this->smsRedisData['user_ids']=$this->rev_users;
-        return $this;
-    }
-    function saveUserSms(){
-        $user_ids=$this->smsRedisData["user_ids"];
-        $smstype=$this->smsRedisData["smstype"];
-        $sms_id=$this->smsRedisData["sms_id"];
-        $sms_time=$this->smsRedisData["sms_time"];
-        $redis=new Redis();
-        foreach ($user_ids as $k=>$user_id) {
-            $redis->zadd("smsuser:" . $user_id, $smstype . $sms_time, $sms_id);
+            $this->smsRedisData['sms_id']=$db->insert("message",$data);
         }
+        
+        // $this->smsRedisData['sms_time']=$time;
+        // $this->smsRedisData['smstype']=$this->type;
+        // $this->smsRedisData['user_ids']=$this->rev_users;
         return $this;
     }
+    // function saveUserSms(){
+    //     $user_ids=$this->smsRedisData["user_ids"];
+    //     $smstype=$this->smsRedisData["smstype"];
+    //     $sms_id=$this->smsRedisData["sms_id"];
+    //     $sms_time=$this->smsRedisData["sms_time"];
+    //     $redis=new Redis();
+    //     foreach ($user_ids as $k=>$user_id) {
+    //         $redis->zadd("smsuser:" . $user_id, $smstype . $sms_time, $sms_id);
+    //     }
+    //     return $this;
+    // }
 private function getOtherData(&$data){
         $zhiyuandata=new zhiyuanData();
         switch ($data["stage"])
