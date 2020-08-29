@@ -23,9 +23,9 @@ class WarningSms implements Icommand
     function run(){
 
         $doeds = array();
-        $dirpath = "./../testdata/yingjian/";
-        //$rundate=date('Ymd')="20200710";
-        $rundate="20200710";
+        $dirpath = "/data/yingjian/";
+        $rundate=date('Ymd');
+        //$rundate="20200710";
         $dirpath .= $rundate;
 
         while (true) {
