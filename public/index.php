@@ -7,7 +7,7 @@
  */
 use Sprovider90\Zhiyuanqueue\Application;
 use Sprovider90\Zhiyuanqueue\Logic\Message;
-require "../vendor/autoload.php";
+require __DIR__."../vendor/autoload.php";
 define('PUBLIC_PATH', __DIR__."/");
 define('APP_PATH', __DIR__."/../");
 
