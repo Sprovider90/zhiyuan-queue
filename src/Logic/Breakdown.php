@@ -20,15 +20,15 @@ class Breakdown implements Icommand
     function run(){
 
         $doeds = array();
-        $dirpath = "./../testdata/yingjianbreakdown/";
-        //$rundate=date('Ymd')="20200710";
-        $rundate="20200710";
+        $dirpath = "/data/yingjianbreakdown/";
+        $rundate=date('Ymd');
+        //$rundate="20200710";
         $dirpath .= $rundate;
 
         while (true) {
             if(date('Ymd')>$rundate){
-//                CliHelper::cliEcho($rundate."WarningSms任务处理完成");
-//                exit();
+                CliHelper::cliEcho($rundate."WarningSms任务处理完成");
+                exit();
             }
             if (!is_dir($dirpath)) {
                 CliHelper::cliEcho("当前目录下，目录 " . $dirpath . " 不存在 线程休眠1秒");
