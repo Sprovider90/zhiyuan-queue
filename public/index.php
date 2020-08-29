@@ -7,7 +7,7 @@
  */
 use Sprovider90\Zhiyuanqueue\Application;
 use Sprovider90\Zhiyuanqueue\Logic\Message;
-require __DIR__."../vendor/autoload.php";
+require __DIR__."/../vendor/autoload.php";
 define('PUBLIC_PATH', __DIR__."/");
 define('APP_PATH', __DIR__."/../");
 
@@ -16,7 +16,7 @@ $dotenv =  Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 //config
-\Sprovider90\Zhiyuanqueue\Factory\Config::register("../src/Config");
+\Sprovider90\Zhiyuanqueue\Factory\Config::register(__DIR__."/../src/Config");
 
 
 
