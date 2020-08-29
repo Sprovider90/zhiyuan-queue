@@ -11,7 +11,7 @@ namespace Sprovider90\Zhiyuanqueue\Logic;
 use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
 use Sprovider90\Zhiyuanqueue\Factory\Config;
 use Sprovider90\Zhiyuanqueue\Factory\MessageDeal;
-use Sprovider90\Zhiyuanqueue\Helper\Clihelper;
+use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
 
 /**
  * Class Message
