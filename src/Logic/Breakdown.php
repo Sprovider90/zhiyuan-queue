@@ -52,7 +52,8 @@ class Breakdown implements Icommand
     {
         $data=[];
         if(!empty($yingjian)){
-            foreach ($yingjian as $k=>$v) {
+            $yingjian_arr[0]=$yingjian;
+            foreach ($yingjian_arr as $k=>$v) {
                 $tmp=[];
                 $tmp["project_id"]=$v["projectId"];
                 $tmp["device_id"]=$v["deviceId"];
@@ -65,7 +66,7 @@ class Breakdown implements Icommand
             $this->saveToMysql($data);
         }
 
-       return ;
+       return $this;
     }
     function saveToMysql($data)
     {
@@ -76,4 +77,9 @@ class Breakdown implements Icommand
         }
 
     }
+//    function sendMessage($data)
+//    {
+//        $
+//        return $this;
+//    }
 }
