@@ -7,8 +7,11 @@
  */
 
 namespace Sprovider90\Zhiyuanqueue\Logic;
+use Sprovider90\Zhiyuanqueue\Factory\Config;
 use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
 use Sprovider90\Zhiyuanqueue\Model\Orm;
+
+
 /**
  * Class Breakdown
  * @package Sprovider90\Zhiyuanqueue\Logic
@@ -17,52 +20,34 @@ use Sprovider90\Zhiyuanqueue\Model\Orm;
 
 class Breakdown implements Icommand
 {
-    function run(){
 
-        $doeds = array();
-        $dirpath = "/data/yingjianbreakdown/";
-        $rundate=date('Ymd');
-        //$rundate="20200710";
-        $dirpath .= $rundate;
 
+    function run (){
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        $redisConfig=Config::get("Redis");
         while (true) {
-            if(date('Ymd')>$rundate){
-                CliHelper::cliEcho($rundate."WarningSms任务处理完成");
-                exit();
-            }
-            if (!is_dir($dirpath)) {
-                CliHelper::cliEcho("当前目录下，目录 " . $dirpath . " 不存在 线程休眠1秒");
-                usleep(1000 * 1000);
-                continue;
+            $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
+            $str=$client->lpop('breakdown');
+            if (!empty($str)) {
+                $data=json_decode($str,true);
 
-            }
-            $allfiles = scandir($dirpath);
-
-            $files = array_diff($allfiles, $doeds);//差集
-            $doeds = $allfiles;
-
-            foreach ($files as $file) {
-                $file = $dirpath . '/' . $file;
-                if (is_file($file)) {
-
-                    $start_time = microtime(true);
-                    $filecontent=file_get_contents($file);
-                    $json_arr=json_decode($filecontent,true);
-                    if(empty($json_arr)){
-                        CliHelper::cliEcho($file." content not is jsonData");
-                    }
-                    $this->deal($json_arr);
-                    $endTime = microtime(true);
-                    $runTime = round($endTime - $start_time,6) * 1000;
-                    CliHelper::cliEcho("runtime-".$runTime);
+                if(empty($data)){
+                    CliHelper::cliEcho("data not is json");
                 }
-
+                $this->deal($data);
             }
-            CliHelper::cliEcho("no new file come");
-            usleep(1000 * 100);
+            CliHelper::cliEcho("sleep 100ms");
+            usleep(100);
+
         }
 
+        flush();
+        ob_flush();
     }
+
+
     public function deal($yingjian)
     {
         $data=[];
