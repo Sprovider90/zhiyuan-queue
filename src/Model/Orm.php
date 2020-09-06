@@ -41,4 +41,7 @@ class Orm
             $feilds
         ], $where);
     }
+    function del($table_name,$where=[]){
+        return $this->database->delete($table_name,$where);
+    }
 }

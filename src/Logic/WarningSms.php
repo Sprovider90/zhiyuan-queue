@@ -27,10 +27,19 @@ class WarningSms implements Icommand
         $rundate=date('Ymd');
         $dirpath .= $rundate;
 
+        //为了测试  删除当天的预警数据，重新构建
+        $db=new Orm();
+        $db->del("",["created_at[><]" => [$rundate." 00:00:00", $rundate." 23:59:59"]]);
+
+
         while (true) {
             if(date('Ymd')>$rundate){
-                CliHelper::cliEcho($rundate."WarningSms任务处理完成");
-                exit();
+
+                CliHelper::cliEcho($rundate."WarningSms任务处理完成,开启新一天的计算");
+                $doeds = array();
+                $dirpath=str_replace($rundate,date('Ymd'),$dirpath);
+
+
             }
             if (!is_dir($dirpath)) {
                 CliHelper::cliEcho("当前目录下，目录 " . $dirpath . " 不存在 线程休眠1秒");
@@ -93,6 +102,9 @@ class WarningSms implements Icommand
                 WHERE
                     a.id = b.maxid
                                                 ";
+
+
+        CliHelper::cliEcho($sql);
         $rs = $db->getAll($sql);
         if(!empty($rs)){
             $this->proThresholdNow=array_column($rs,"thresholdinfo","project_id");
