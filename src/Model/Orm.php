@@ -44,4 +44,7 @@ class Orm
     function del($table_name,$where=[]){
         return $this->database->delete($table_name,$where);
     }
+    function last(){
+        return $this->database->last();
+    }
 }
