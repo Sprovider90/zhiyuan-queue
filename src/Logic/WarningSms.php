@@ -18,20 +18,19 @@ use Sprovider90\Zhiyuanqueue\Model\Orm;
  */
 class WarningSms implements Icommand
 {
-
+    protected $proThresholdNow=[];
     protected $zhibaos=["humidity","temperature","formaldehyde","PM25","CO2","PM10","TVOC","PM1"];
     function run(){
 
         $doeds = array();
         $dirpath = "/data/yingjian/";
         $rundate=date('Ymd');
-        //$rundate="20200710";
         $dirpath .= $rundate;
 
         while (true) {
             if(date('Ymd')>$rundate){
-//                CliHelper::cliEcho($rundate."WarningSms任务处理完成");
-//                exit();
+                CliHelper::cliEcho($rundate."WarningSms任务处理完成");
+                exit();
             }
             if (!is_dir($dirpath)) {
                 CliHelper::cliEcho("当前目录下，目录 " . $dirpath . " 不存在 线程休眠1秒");
@@ -39,6 +38,8 @@ class WarningSms implements Icommand
                 continue;
 
             }
+
+
             $allfiles = scandir($dirpath);
 
             $files = array_diff($allfiles, $doeds);//差集
@@ -47,6 +48,8 @@ class WarningSms implements Icommand
             foreach ($files as $file) {
                 $file = $dirpath . '/' . $file;
                 if (is_file($file)) {
+                    //更新当前项目阈值
+                    $this->setProThresholdNow();
 
                     $start_time = microtime(true);
                     $filecontent=file_get_contents($file);
@@ -66,21 +69,43 @@ class WarningSms implements Icommand
         }
 
     }
+    public function setProThresholdNow(){
+        $this->proThresholdNow=[];
+        $db = new Orm();
+        $sql = "SELECT
+                    id,project_id,thresholdinfo
+                FROM
+                    pro_thresholds_log AS a,
+                    (
+                        SELECT
+                            project_id,
+                            max(id) as maxid
+                        FROM
+                            pro_thresholds_log 
+                        GROUP BY
+                            project_id
+                    ) AS b
+                WHERE
+                a.id = b.maxid
+                ";
+        $rs = $db->getAll($sql);
+        if(!empty($rs)){
+            $this->proThresholdNow=array_column($rs,"thresholdinfo","project_id");
+        }else{
+            CliHelper::cliEcho("no ProThresholdNow data");
+        }
 
+    }
     /**
      * 1.入库
      * 2.发送到消息服务
      */
     public function deal($yingjian,$file){
-        $file=str_replace("yingjian","prokz",$file);
-        while(!is_file($file)){
-            CliHelper::cliEcho("no new prokz file come sleep 1s");
-            sleep(1);
+        if(empty($this->proThresholdNow)){
+            CliHelper::cliEcho("this proThresholdNow no data");
+            return;
         }
-
-        $kzs=file_get_contents($file);
-        $kzarr=json_decode($kzs);
-        $kzarr=array_column($kzarr,"thresholdinfo","project_id");
+        $kzarr=$this->proThresholdNow;
         $this->dealKzData($kzarr);
         $this->mergeData($kzarr,$yingjian);
         $points=$this->getTriggerPonits($yingjian);
