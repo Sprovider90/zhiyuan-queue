@@ -30,6 +30,7 @@ class WarningSms implements Icommand
         //为了测试  删除当天的预警数据，重新构建
         $db=new Orm();
         $db->del("warnigs",["created_at[><]" => [$rundate." 00:00:00", $rundate." 23:59:59"]]);
+        CliHelper::cliEcho($db->last());
 
 
         while (true) {
@@ -95,7 +96,7 @@ class WarningSms implements Icommand
                             max(id) AS maxid
                         FROM
                             pro_thresholds_log
-                        WHERE created_at<={$kztime}
+                        WHERE created_at<='".$kztime."'
                         GROUP BY
                             project_id
                     ) AS b
