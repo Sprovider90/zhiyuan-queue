@@ -73,21 +73,23 @@ class WarningSms implements Icommand
         $this->proThresholdNow=[];
         $db = new Orm();
         $sql = "SELECT
-                    id,project_id,thresholdinfo
+                    a.id,
+                    a.project_id,
+                    a.thresholdinfo
                 FROM
                     pro_thresholds_log AS a,
                     (
                         SELECT
                             project_id,
-                            max(id) as maxid
+                            max(id) AS maxid
                         FROM
-                            pro_thresholds_log 
+                            pro_thresholds_log
                         GROUP BY
                             project_id
                     ) AS b
                 WHERE
-                a.id = b.maxid
-                ";
+                    a.id = b.maxid
+                                ";
         $rs = $db->getAll($sql);
         if(!empty($rs)){
             $this->proThresholdNow=array_column($rs,"thresholdinfo","project_id");
