@@ -48,8 +48,7 @@ class WarningSms implements Icommand
             foreach ($files as $file) {
                 $file = $dirpath . '/' . $file;
                 if (is_file($file)) {
-                    //更新当前项目阈值
-                    $this->setProThresholdNow();
+
 
                     $start_time = microtime(true);
                     $filecontent=file_get_contents($file);
@@ -57,7 +56,10 @@ class WarningSms implements Icommand
                     if(empty($json_arr)){
                         CliHelper::cliEcho($file." content not is jsonData");
                     }
-                    $this->deal($json_arr,$file);
+                    //更新当前项目阈值
+                    $this->setProThresholdNow($json_arr[0]["timestamp"]);
+                    
+                    $this->deal($json_arr);
                     $endTime = microtime(true);
                     $runTime = round($endTime - $start_time,6) * 1000;
                     CliHelper::cliEcho("runtime-".$runTime);
@@ -69,7 +71,7 @@ class WarningSms implements Icommand
         }
 
     }
-    public function setProThresholdNow(){
+    public function setProThresholdNow($kztime){
         $this->proThresholdNow=[];
         $db = new Orm();
         $sql = "SELECT
@@ -84,12 +86,13 @@ class WarningSms implements Icommand
                             max(id) AS maxid
                         FROM
                             pro_thresholds_log
+                        WHERE created_at<={$kztime}
                         GROUP BY
                             project_id
                     ) AS b
                 WHERE
                     a.id = b.maxid
-                                ";
+                                                ";
         $rs = $db->getAll($sql);
         if(!empty($rs)){
             $this->proThresholdNow=array_column($rs,"thresholdinfo","project_id");
@@ -102,7 +105,7 @@ class WarningSms implements Icommand
      * 1.入库
      * 2.发送到消息服务
      */
-    public function deal($yingjian,$file){
+    public function deal($yingjian){
         if(empty($this->proThresholdNow)){
             CliHelper::cliEcho("this proThresholdNow no data");
             return;
