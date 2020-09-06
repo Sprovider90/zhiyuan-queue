@@ -29,7 +29,7 @@ class WarningSms implements Icommand
 
         //为了测试  删除当天的预警数据，重新构建
         $db=new Orm();
-        $db->del("",["created_at[><]" => [$rundate." 00:00:00", $rundate." 23:59:59"]]);
+        $db->del("warnigs",["created_at[><]" => [$rundate." 00:00:00", $rundate." 23:59:59"]]);
 
 
         while (true) {
