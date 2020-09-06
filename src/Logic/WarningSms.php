@@ -34,7 +34,7 @@ class WarningSms implements Icommand
             }
             if (!is_dir($dirpath)) {
                 CliHelper::cliEcho("当前目录下，目录 " . $dirpath . " 不存在 线程休眠1秒");
-                usleep(1000 * 1000);
+                usleep(1000 * 1000 * 1);
                 continue;
 
             }
@@ -58,7 +58,7 @@ class WarningSms implements Icommand
                     }
                     //更新当前项目阈值
                     $this->setProThresholdNow($json_arr[0]["timestamp"]);
-                    
+
                     $this->deal($json_arr);
                     $endTime = microtime(true);
                     $runTime = round($endTime - $start_time,6) * 1000;
@@ -66,8 +66,8 @@ class WarningSms implements Icommand
                 }
 
             }
-            CliHelper::cliEcho("no new file come");
-            usleep(1000 * 100);
+            CliHelper::cliEcho("no new file come 线程休眠30秒");
+            usleep(1000 * 1000 * 30);
         }
 
     }
