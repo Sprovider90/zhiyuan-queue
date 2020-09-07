@@ -19,6 +19,7 @@ use Sprovider90\Zhiyuanqueue\Model\Orm;
 class WarningSms implements Icommand
 {
     protected $proThresholdNow=[];
+    protected $file_name="";
     protected $zhibaos=["humidity","temperature","formaldehyde","PM25","CO2","PM10","TVOC","PM1"];
     function run(){
 
@@ -40,7 +41,6 @@ class WarningSms implements Icommand
                 $doeds = array();
                 $dirpath=str_replace($rundate,date('Ymd'),$dirpath);
 
-
             }
             if (!is_dir($dirpath)) {
                 CliHelper::cliEcho("当前目录下，目录 " . $dirpath . " 不存在 线程休眠1秒");
@@ -48,7 +48,6 @@ class WarningSms implements Icommand
                 continue;
 
             }
-
 
             $allfiles = scandir($dirpath);
 
@@ -66,6 +65,7 @@ class WarningSms implements Icommand
                     if(empty($json_arr)){
                         CliHelper::cliEcho($file." content not is jsonData");
                     }
+                    $this->file_name=$file;
                     //更新当前项目阈值
                     $this->setProThresholdNow($json_arr[0]["timestamp"]);
 
@@ -85,9 +85,7 @@ class WarningSms implements Icommand
         $this->proThresholdNow=[];
         $db = new Orm();
         $sql = "SELECT
-                    a.id,
-                    a.project_id,
-                    a.thresholdinfo
+                    *
                 FROM
                     pro_thresholds_log AS a,
                     (
@@ -101,14 +99,13 @@ class WarningSms implements Icommand
                             project_id
                     ) AS b
                 WHERE
-                    a.id = b.maxid
-                                                ";
+                    a.id = b.maxid";
 
 
         CliHelper::cliEcho($sql);
         $rs = $db->getAll($sql);
         if(!empty($rs)){
-            $this->proThresholdNow=array_column($rs,"thresholdinfo","project_id");
+            $this->proThresholdNow=$this->arrayToArrayKey($rs,"project_id");
         }else{
             CliHelper::cliEcho("no ProThresholdNow data");
         }
@@ -133,6 +130,70 @@ class WarningSms implements Icommand
 
     }
 
+    function dealKzData(&$kzarr)
+    {
+        foreach ($kzarr as $k=>&$v) {
+            $tmparr=json_decode($v["thresholdinfo"],true);
+            foreach ($tmparr as $tmparrk=>&$tmparrv) {
+                $tmparrv=explode("~",$tmparrv)[1];
+            }
+            $v["thresholdinfo"]=$tmparr;
+
+        }
+    }
+    function mergeData($kzarr,&$yingjian)
+    {
+        foreach ($yingjian as $k=>&$v){
+            foreach ($this->zhibaos as $k_zhibiao =>$v_zhibiao){
+                $v["proTrigger_".$v_zhibiao]=NULL;
+            }
+
+            if(isset($kzarr[$v["projectId"]["thresholdinfo"]])){
+
+                foreach ($kzarr[$v["projectId"]["thresholdinfo"]] as $kz_k=>$kz_v) {
+                    $v["proTrigger_".$kz_k]=$kz_v;
+                }
+            }
+            if(isset($kzarr[$v["projectId"]["thresholds_name"]])){
+                $v["thresholds_name"]=$kzarr[$v["projectId"]["thresholds_name"]];
+            }
+        }
+    }
+    function getTriggerPonits($yingjian){
+
+        $result=[];
+        if(!empty($yingjian)){
+            foreach ($yingjian as $yingjian_k=>$yingjian_v) {
+                foreach ($yingjian_v as $k => $v) {
+                    //数据无法检测
+                    if(!in_array($k, $this->zhibaos) || $yingjian_v["proTrigger_" . $k][0] == NULL || $yingjian_v["proTrigger_" . $k][1] == NULL){
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["dataerr" => $k]]);
+                        continue;
+                    }
+                    //触发预警消息列表&&判定指标的空气质量
+                    //污染
+                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][1] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k][1]) {
+
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["wuran" => $k]]);
+                        continue;
+                    }
+                    //合格
+                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][0] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k][0]) {
+
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["hege" => $k]]);
+                        continue;
+                    }
+                    //优质
+                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][0] !== NULL && $yingjian_v[$k] < $yingjian_v["proTrigger_" . $k][0]) {
+
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["youzhi" => $k]]);
+                        continue;
+                    }
+                }
+            }
+        }
+        return $result;
+    }
     function saveToMysql($data)
     {
         $data=$this->TurnDataToMysql($data);
@@ -148,67 +209,57 @@ class WarningSms implements Icommand
         if(!empty($data)){
             foreach ($data as $k=>$v) {
                 $tmp=[];
-                $tmp_threshold_keys="";
-
+                $tmp_threshold_keys=[];
+                $tmp_check_result=[];
                 foreach ($v as $v_k=>$v_v) {
 
                     if($v_k==0){
                         $tmp["project_id"]=$v_v["projectId"];
                         $tmp["point_id"]=$v_v["monitorId"];
                         $tmp["waring_time"]=$v_v["timestamp"];
+                        $tmp["thresholds_name"]=$v_v["thresholds_name"];
                         $tmp["created_at"]=date('Y-m-d H:i:s',time());
                         $tmp["originaldata"]=json_encode($v);
-                    }
 
-                    $tmp_threshold_keys.=$v_v["trigger_zhibiao"].",";
+                    }
+                    `thresholds_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标准检测点名称',
+                    `check_result` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '检测结果，用于检测点，区域打空气质量标签',
+                    `original_file` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '源数据文件所在位置',
+
+                    $tmp_threshold_keys[]=$v_v["check_result"]["wuran"];
+                    $tmp_check_result[]=$v_v["check_result"];
 
                 }
-                $tmp["threshold_keys"]=substr($tmp_threshold_keys,0,-1);
+
+                $tmp["original_file"]=$this->file_name;
+                $tmp["threshold_keys"]=implode(',',$tmp_threshold_keys);
+                $tmp["check_result"]=json_encode($tmp_check_result);
                 $result[]=$tmp;
             }
         }
         return $result;
     }
-    function dealKzData(&$kzarr)
+    function arrayToArrayKey($arr, $field, $group = 0)
     {
-        foreach ($kzarr as $k=>&$v) {
-            $tmparr=json_decode($v,true);
-            foreach ($tmparr as $tmparrk=>&$tmparrv) {
-                $tmparrv=explode("~",$tmparrv)[1];
-            }
-            $v=$tmparr;
-
+        $array = [];
+        if (empty($arr)) {
+            return $array;
         }
-    }
-    function mergeData($kzarr,&$yingjian)
-    {
-        foreach ($yingjian as $k=>&$v){
-            foreach ($this->zhibaos as $k_zhibiao =>$v_zhibiao){
-                $v["proTrigger_".$v_zhibiao]=NULL;
+        if ($group == 0) {
+
+            foreach ($arr as $v) {
+                if (array_key_exists($field, $v)) {
+                    $array[$v[$field]] = $v;
+                }
             }
-
-            if(isset($kzarr[$v["projectId"]])){
-
-                foreach ($kzarr[$v["projectId"]] as $kz_k=>$kz_v) {
-                    $v["proTrigger_".$kz_k]=$kz_v;
+        } else {
+            foreach ($arr as $v) {
+                if (array_key_exists($field, $v)) {
+                    $array[$v[$field]][] = $v;
                 }
             }
         }
-    }
-    function getTriggerPonits($yingjian){
 
-        $result=[];
-        if(!empty($yingjian)){
-            foreach ($yingjian as $yingjian_k=>$yingjian_v) {
-                foreach ($yingjian_v as $k => $v) {
-                    //触发预警消息列表
-                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k]) {
-
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["trigger_zhibiao" => $k]);
-                    }
-                }
-            }
-        }
-        return $result;
+        return $array;
     }
 }

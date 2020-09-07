@@ -77,9 +77,6 @@ class Breakdown implements Icommand
         }
 
     }
-//    function sendMessage($data)
-//    {
-//        $
-//        return $this;
-//    }
+// 数组转换
+    
 }
