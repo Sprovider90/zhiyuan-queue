@@ -17,10 +17,10 @@ class Tag
     const YOUZHI=1;
     const HEGE=2;
     const WURAN=3;
-    function run($waring_time=0){
+    function run($original_file=0){
         //判断发送
         $db = new Orm();
-        if(empty($waring_time)){//为了复盘数据
+        if(empty($original_file)){//为了复盘数据
             $sql = "SELECT
             a.check_result,a.project_id,a.point_id,a.original_file,b.area_id
             FROM
@@ -45,7 +45,7 @@ class Tag
                 `warnigs` a
             LEFT JOIN projects_positions b ON a.point_id = b.id
             WHERE
-                a.waring_time = '".$waring_time."'";
+                a.original_file = '".$original_file."'";
         }
 
         $rs = $db->getAll($sql);
