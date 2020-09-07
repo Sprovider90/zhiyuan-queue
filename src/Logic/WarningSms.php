@@ -25,14 +25,14 @@ class WarningSms implements Icommand
 
         $doeds = array();
         $dirpath = "/data/yingjian/";
+        $dirpath = "F:/yingjian/11/";
         $rundate=date('Ymd');
         $dirpath .= $rundate;
 
         //为了测试  删除当天的预警数据，重新构建
         $db=new Orm();
-        $db->del("warnigs",["created_at[><]" => [$rundate." 00:00:00", $rundate." 23:59:59"]]);
+        $db->del("warnigs",["created_at[<>]" => [$rundate." 00:00:00", $rundate." 23:59:59"]]);
         CliHelper::cliEcho($db->last());
-
 
         while (true) {
             if(date('Ymd')>$rundate){
@@ -85,7 +85,7 @@ class WarningSms implements Icommand
         $this->proThresholdNow=[];
         $db = new Orm();
         $sql = "SELECT
-                    *
+                    a.project_id,a.thresholds_name,a.thresholdinfo
                 FROM
                     pro_thresholds_log AS a,
                     (
@@ -101,10 +101,9 @@ class WarningSms implements Icommand
                 WHERE
                     a.id = b.maxid";
 
-
-        CliHelper::cliEcho($sql);
         $rs = $db->getAll($sql);
         if(!empty($rs)){
+
             $this->proThresholdNow=$this->arrayToArrayKey($rs,"project_id");
         }else{
             CliHelper::cliEcho("no ProThresholdNow data");
@@ -121,25 +120,24 @@ class WarningSms implements Icommand
             return;
         }
         $kzarr=$this->proThresholdNow;
-        $this->dealKzData($kzarr);
-        $this->mergeData($kzarr,$yingjian);
-        $points=$this->getTriggerPonits($yingjian);
 
+        $points=$this->dealKzData($kzarr)->mergeData($kzarr,$yingjian)->getTriggerPonits($yingjian);;
         $this->saveToMysql($points);
-
 
     }
 
     function dealKzData(&$kzarr)
     {
+
         foreach ($kzarr as $k=>&$v) {
             $tmparr=json_decode($v["thresholdinfo"],true);
             foreach ($tmparr as $tmparrk=>&$tmparrv) {
-                $tmparrv=explode("~",$tmparrv)[1];
+                $tmparrv=explode("~",$tmparrv);
             }
             $v["thresholdinfo"]=$tmparr;
 
         }
+        return $this;
     }
     function mergeData($kzarr,&$yingjian)
     {
@@ -148,26 +146,32 @@ class WarningSms implements Icommand
                 $v["proTrigger_".$v_zhibiao]=NULL;
             }
 
-            if(isset($kzarr[$v["projectId"]["thresholdinfo"]])){
+            if(isset($kzarr[$v["projectId"]]["thresholdinfo"])){
 
-                foreach ($kzarr[$v["projectId"]["thresholdinfo"]] as $kz_k=>$kz_v) {
+                foreach ($kzarr[$v["projectId"]]["thresholdinfo"] as $kz_k=>$kz_v) {
                     $v["proTrigger_".$kz_k]=$kz_v;
                 }
             }
-            if(isset($kzarr[$v["projectId"]["thresholds_name"]])){
-                $v["thresholds_name"]=$kzarr[$v["projectId"]["thresholds_name"]];
+            if(isset($kzarr[$v["projectId"]]["thresholds_name"])){
+                $v["proTrigger_thresholds_name"]=$kzarr[$v["projectId"]]["thresholds_name"];
             }
+
         }
+        return $this;
     }
     function getTriggerPonits($yingjian){
 
         $result=[];
         if(!empty($yingjian)){
             foreach ($yingjian as $yingjian_k=>$yingjian_v) {
+
                 foreach ($yingjian_v as $k => $v) {
+                    if(!in_array($k, $this->zhibaos)){
+                        continue;
+                    }
                     //数据无法检测
-                    if(!in_array($k, $this->zhibaos) || $yingjian_v["proTrigger_" . $k][0] == NULL || $yingjian_v["proTrigger_" . $k][1] == NULL){
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["dataerr" => $k]]);
+                    if(empty($yingjian_v["proTrigger_" . $k]) || $yingjian_v["proTrigger_" . $k][0] == NULL || $yingjian_v["proTrigger_" . $k][1] == NULL){
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["noset" => $k]]);
                         continue;
                     }
                     //触发预警消息列表&&判定指标的空气质量
@@ -190,6 +194,7 @@ class WarningSms implements Icommand
                         continue;
                     }
                 }
+
             }
         }
         return $result;
@@ -217,16 +222,15 @@ class WarningSms implements Icommand
                         $tmp["project_id"]=$v_v["projectId"];
                         $tmp["point_id"]=$v_v["monitorId"];
                         $tmp["waring_time"]=$v_v["timestamp"];
-                        $tmp["thresholds_name"]=$v_v["thresholds_name"];
+                        $tmp["thresholds_name"]=$v_v["proTrigger_thresholds_name"];
                         $tmp["created_at"]=date('Y-m-d H:i:s',time());
                         $tmp["originaldata"]=json_encode($v);
 
                     }
-                    `thresholds_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标准检测点名称',
-                    `check_result` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '检测结果，用于检测点，区域打空气质量标签',
-                    `original_file` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '源数据文件所在位置',
+                    if(isset($v_v["check_result"]["wuran"])){
+                        $tmp_threshold_keys[]=$v_v["check_result"]["wuran"];
+                    }
 
-                    $tmp_threshold_keys[]=$v_v["check_result"]["wuran"];
                     $tmp_check_result[]=$v_v["check_result"];
 
                 }
@@ -234,6 +238,7 @@ class WarningSms implements Icommand
                 $tmp["original_file"]=$this->file_name;
                 $tmp["threshold_keys"]=implode(',',$tmp_threshold_keys);
                 $tmp["check_result"]=json_encode($tmp_check_result);
+
                 $result[]=$tmp;
             }
         }

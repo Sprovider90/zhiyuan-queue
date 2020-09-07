@@ -34,7 +34,7 @@ class Orm
     }
     function getAll($sql){
 
-        return $this->database->query($sql)->fetchAll();
+        return $this->database->query($sql)->fetchAll(2);
     }
     function find($table_name,$feilds="*",$where=[]){
         return $this->database->get($table_name, [
