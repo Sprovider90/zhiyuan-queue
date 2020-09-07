@@ -25,7 +25,7 @@ class WarningSms implements Icommand
 
         $doeds = array();
         $dirpath = "/data/yingjian/";
-        $dirpath = "F:/yingjian/11/";
+        //$dirpath = "F:/yingjian/11/";
         $rundate=date('Ymd');
         $dirpath .= $rundate;
 
