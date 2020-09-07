@@ -9,7 +9,7 @@
 namespace Sprovider90\Zhiyuanqueue\Factory;
 
 
-use Sprovider90\ZhiyuanQueue\Model\Orm;
+use Sprovider90\Zhiyuanqueue\Model\Orm;
 
 class NotNotice
 {

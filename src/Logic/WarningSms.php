@@ -9,7 +9,7 @@
 namespace Sprovider90\Zhiyuanqueue\Logic;
 use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
 use Sprovider90\Zhiyuanqueue\Model\Orm;
-
+use Sprovider90\Zhiyuanqueue\Helper\Tool;
 /**
  * Class WarningSms
  * @package Sprovider90\Zhiyuanqueue\Logic
@@ -31,7 +31,7 @@ class WarningSms implements Icommand
 
         //为了测试  删除当天的预警数据，重新构建
         $db=new Orm();
-        $db->del("warnigs",["created_at[<>]" => [$rundate." 00:00:00", $rundate." 23:59:59"]]);
+        $db->del("warnigs",["created_at[<>]" => [date('Y-m-d')." 00:00:00", date('Y-m-d')." 23:59:59"]]);
         CliHelper::cliEcho($db->last());
 
         while (true) {
@@ -104,7 +104,7 @@ class WarningSms implements Icommand
         $rs = $db->getAll($sql);
         if(!empty($rs)){
 
-            $this->proThresholdNow=$this->arrayToArrayKey($rs,"project_id");
+            $this->proThresholdNow=Tool::arrayToArrayKey($rs,"project_id");
         }else{
             CliHelper::cliEcho("no ProThresholdNow data");
         }
@@ -123,6 +123,9 @@ class WarningSms implements Icommand
 
         $points=$this->dealKzData($kzarr)->mergeData($kzarr,$yingjian)->getTriggerPonits($yingjian);;
         $this->saveToMysql($points);
+        //刷新标签数据
+        $tag=new \Sprovider90\Zhiyuanqueue\Factory\Tag();
+        $tag->run($this->file_name);
 
     }
 
@@ -171,26 +174,26 @@ class WarningSms implements Icommand
                     }
                     //数据无法检测
                     if(empty($yingjian_v["proTrigger_" . $k]) || $yingjian_v["proTrigger_" . $k][0] == NULL || $yingjian_v["proTrigger_" . $k][1] == NULL){
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["noset" => $k]]);
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>[$k=>"noset"]]);
                         continue;
                     }
                     //触发预警消息列表&&判定指标的空气质量
                     //污染
                     if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][1] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k][1]) {
 
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["wuran" => $k]]);
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>[$k=>"wuran"]]);
                         continue;
                     }
                     //合格
                     if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][0] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k][0]) {
 
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["hege" => $k]]);
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>[$k=>"hege"]]);
                         continue;
                     }
                     //优质
                     if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][0] !== NULL && $yingjian_v[$k] < $yingjian_v["proTrigger_" . $k][0]) {
 
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>["youzhi" => $k]]);
+                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>[$k=>"youzhi"]]);
                         continue;
                     }
                 }
@@ -227,11 +230,16 @@ class WarningSms implements Icommand
                         $tmp["originaldata"]=json_encode($v);
 
                     }
-                    if(isset($v_v["check_result"]["wuran"])){
-                        $tmp_threshold_keys[]=$v_v["check_result"]["wuran"];
-                    }
+                    if(isset($v_v["check_result"])){
 
-                    $tmp_check_result[]=$v_v["check_result"];
+                        foreach ($v_v["check_result"] as $kk=>$vv){
+                            $tmp_check_result[$kk]=$vv;
+                            if($vv=="wuran"){
+                                $tmp_threshold_keys[]=$kk;
+                            }
+                        }
+
+                    }
 
                 }
 
@@ -244,27 +252,5 @@ class WarningSms implements Icommand
         }
         return $result;
     }
-    function arrayToArrayKey($arr, $field, $group = 0)
-    {
-        $array = [];
-        if (empty($arr)) {
-            return $array;
-        }
-        if ($group == 0) {
 
-            foreach ($arr as $v) {
-                if (array_key_exists($field, $v)) {
-                    $array[$v[$field]] = $v;
-                }
-            }
-        } else {
-            foreach ($arr as $v) {
-                if (array_key_exists($field, $v)) {
-                    $array[$v[$field]][] = $v;
-                }
-            }
-        }
-
-        return $array;
-    }
 }

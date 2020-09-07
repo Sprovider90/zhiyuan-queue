@@ -50,7 +50,7 @@ class BuildCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $optional_argument = $input->getArgument('taskname');
-        if(in_array($optional_argument,["Message","WarningSms","PhoneNotice","Breakdown"])){
+        if(in_array($optional_argument,["Message","WarningSms","PhoneNotice","Breakdown","Tag"])){
             //注册monolog
             $monolog=Config::get("Monolog");
             Monolog::register($optional_argument,$monolog["path"]);
