@@ -20,9 +20,9 @@ class WarningSms implements Icommand
 {
     protected $proThresholdNow=[];
     protected $file_name="";
-    protected $zhibaos=["humidity","temperature","formaldehyde","PM25","CO2","PM10","TVOC","PM1"];
+    //protected $zhibaos=["humidity","temperature","formaldehyde","PM25","CO2","PM10","TVOC","PM1"];
+    protected $zhibaos=["humidity","temperature","formaldehyde","pm25","co2","PM10","TVOC","PM1"];
     function run(){
-
         $doeds = array();
         $dirpath = "/data/yingjian/";
         //$dirpath = "F:/yingjian/11/";

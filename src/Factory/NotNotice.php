@@ -47,7 +47,7 @@ class NotNotice
         if(!$this->is_continue){
             return $this;
         }
-        $needCheck=["notice_start_time","notice_end_time","project_id","remind_time","notice_phone"];
+        $needCheck=["notice_end_time","project_id","remind_time","notice_phone"];
         foreach ($needCheck as $k=>$v) {
             if(empty($this->data[$v])){
                 $this->is_send=0;
@@ -72,8 +72,11 @@ class NotNotice
         }
         $originaldata_arr=$this->data["originaldata_arr"];
         $originaldata_arr=$originaldata_arr[0];
+
         foreach ($this->zhibaos as $k=>$v) {
-            if($originaldata_arr["proTrigger_" . $v]!==NULL && $originaldata_arr[$v] > $originaldata_arr["proTrigger_" . $v]*(1+$this->data["percentage"])){
+            $v="formaldehyde";
+
+            if(isset($originaldata_arr["proTrigger_".$v]) && $originaldata_arr["proTrigger_".$v]!==NULL && ($originaldata_arr[$v] >= $originaldata_arr["proTrigger_".$v][1]*(1+$this->data["percentage"]))){
                 $this->is_send=1;
                 $this->no_send_reason=[];
                 $this->target_name.=$k.",";
@@ -137,6 +140,7 @@ class NotNotice
                 $this->no_send_reason[]=6;
             }
             if($this->is_send==1){
+
                 if($_ENV["phonesms_onoff"] == "on"){
                     foreach ($mobile_arr as $k=>$v){
                         $err_message=Alimsg::sendsms($v,$proshortname,$pointname,$this->target_name);
