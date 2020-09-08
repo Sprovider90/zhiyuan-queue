@@ -31,7 +31,7 @@ class NotNotice
     protected $no_send_reason;
     protected $target_name="";
     protected $data;
-    protected $zhibaos=["湿度"=>"humidity","温度"=>"temperature","甲醛"=>"formaldehyde","PM25"=>"PM25","CO2"=>"CO2","PM10"=>"PM10","TVOC"=>"TVOC","PM1"=>"PM1"];
+    protected $zhibaos=["湿度"=>"humidity","温度"=>"temperature","甲醛"=>"formaldehyde","PM25"=>"PM25","CO2"=>"CO2","TVOC"=>"TVOC"];
     public function __construct($data)
     {
         $this->data=$data;
