@@ -27,13 +27,22 @@ class PhoneNotice implements Icommand
                         `warnigs` a
                     LEFT JOIN projects_waring_setting b ON a.project_id = b.project_id
                     WHERE
-                        
+
                         a.id > (
                             SELECT
                                 IFNULL(MAX(warnigs_id),0)
                             FROM
                                 phonenotice
                         ) order by a.id asc limit 1;";
+
+//            $sql = "SELECT
+//                         a.*,b.id as projects_waring_setting_id,b.remind_time,b.percentage,b.notice_start_time,b.notice_end_time,notice_phone
+//                    FROM
+//                        `warnigs` a
+//                    LEFT JOIN projects_waring_setting b ON a.project_id = b.project_id
+//                    WHERE
+//
+//                        a.id =517889 order by a.id asc limit 1;";
             $rs = $db->getAll($sql);
 
             if($rs) {
@@ -49,7 +58,7 @@ class PhoneNotice implements Icommand
             }
             CliHelper::cliEcho("sleep 100ms");
             usleep(100);
-
+//exit;
         }
     }
     function saveToMysql($data)
