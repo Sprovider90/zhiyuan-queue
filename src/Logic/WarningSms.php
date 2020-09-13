@@ -26,7 +26,7 @@ class WarningSms implements Icommand
         $doeds = array();
         $max_waring_time=1000000000000;
         $dirpath = "/data/yingjian/";
-        $dirpath = "F:/yingjian/11/";
+        //$dirpath = "F:/yingjian/11/";
         $rundate=date('Ymd');
         $dirpath .= $rundate;
 
