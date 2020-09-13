@@ -144,7 +144,7 @@ class NotNotice
             }
             if($this->is_send==1){
 
-                //if($_ENV["phonesms_onoff"] == "on"){
+                if($_ENV["phonesms_onoff"] == "on"){
                     foreach ($mobile_arr as $k=>$v){
                         $this->target_name=str_replace(",","",$this->target_name);
                         //echo $this->target_name;exit;
@@ -154,7 +154,7 @@ class NotNotice
                             $this->no_send_reason[]=9;
                         }
                     }
-                //}
+                }
             }
 
         }

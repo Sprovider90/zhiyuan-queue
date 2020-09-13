@@ -67,9 +67,9 @@ class Tag
         return $this;
     }
     function delOldData(){
-        $db=new Orm();
-        $db->del("tag",["original_file" => $this->mysqlData[0]["original_file"]]);
-        CliHelper::cliEcho($db->last());
+//        $db=new Orm();
+//        $db->del("tag",["original_file" => $this->mysqlData[0]["original_file"]]);
+//        CliHelper::cliEcho($db->last());
         return $this;
     }
     function pointTag(){

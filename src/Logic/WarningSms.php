@@ -24,15 +24,22 @@ class WarningSms implements Icommand
 
     function run(){
         $doeds = array();
+        $max_waring_time=1000000000000;
         $dirpath = "/data/yingjian/";
-        //$dirpath = "F:/yingjian/11/";
+        $dirpath = "F:/yingjian/11/";
         $rundate=date('Ymd');
         $dirpath .= $rundate;
 
-        //为了测试  删除当天的预警数据，重新构建
+        //异常重启不重新处理
         $db=new Orm();
-        $db->del("warnigs",["created_at[<>]" => [date('Y-m-d')." 00:00:00", date('Y-m-d')." 23:59:59"]]);
-        CliHelper::cliEcho($db->last());
+        $sql="SELECT
+                max(waring_time) as max_waring_time
+            FROM
+                `warnigs` ";
+        $rs = $db->getAll($sql);
+        if($rs) {
+            $max_waring_time=$rs[0]["max_waring_time"];
+        }
 
         while (true) {
             if(date('Ymd')>$rundate){
@@ -62,8 +69,14 @@ class WarningSms implements Icommand
                     $start_time = microtime(true);
                     $filecontent=file_get_contents($file);
                     $json_arr=json_decode($filecontent,true);
+
                     if(empty($json_arr)){
                         CliHelper::cliEcho($file." content not is jsonData");
+                    }
+
+                    if($json_arr[0]["timestamp"]<=$max_waring_time){
+                        CliHelper::cliEcho($json_arr[0]["timestamp"]." already deal!");
+                        continue;
                     }
                     $this->file_name=$file;
                     //更新当前项目阈值
