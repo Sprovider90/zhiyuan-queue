@@ -32,8 +32,9 @@ class PhoneNotice implements Icommand
                             SELECT
                                 IFNULL(MAX(warnigs_id),0)
                             FROM
+                            
                                 phonenotice
-                        ) order by a.id asc limit 1;";
+                        ) order by a.id asc limit 10;";
 
 //            $sql = "SELECT
 //                         a.*,b.id as projects_waring_setting_id,b.remind_time,b.percentage,b.notice_start_time,b.notice_end_time,notice_phone
@@ -44,21 +45,22 @@ class PhoneNotice implements Icommand
 //
 //                        a.id =517889 order by a.id asc limit 1;";
             $rs = $db->getAll($sql);
+            if(!empty($rs)){
+                foreach ($rs as $k=>$v){
+                    if($v) {
+                        $notNotice=new NotNotice($v);
+                        list($is_send,$no_send_reason)=$notNotice->init()->CheckData()->isPercentage()->noBetweenNoticeTime()->frequency()->notice()->getResult();
 
-            if($rs) {
-                $rs=$rs[0];
-                $notNotice=new NotNotice($rs);
-                list($is_send,$no_send_reason)=$notNotice->init()->CheckData()->isPercentage()->noBetweenNoticeTime()->frequency()->notice()->getResult();
-
-                $data=$this->TurnDataToMysql($rs,$is_send,$no_send_reason);
-                $this->saveToMysql($data);
-            }else{
-                CliHelper::cliEcho(" no data sleep 1s");
-                sleep(1);
+                        $data=$this->TurnDataToMysql($v,$is_send,$no_send_reason);
+                        $this->saveToMysql($data);
+                    }else{
+                        CliHelper::cliEcho(" no data sleep 1s");
+                        sleep(1);
+                    }
+                    CliHelper::cliEcho("sleep 100ms");
+                    usleep(100);
+                }
             }
-            CliHelper::cliEcho("sleep 100ms");
-            usleep(100);
-//exit;
         }
     }
     function saveToMysql($data)
