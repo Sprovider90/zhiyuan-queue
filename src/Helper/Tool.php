@@ -14,7 +14,6 @@ class Tool
     public static function combine_template($param, $template)
     {
 
-
         $result = "";
         if (!empty($param)) {
             foreach ($param as $key => $value) {

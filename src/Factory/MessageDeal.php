@@ -29,6 +29,8 @@ class MessageDeal
         return $this;
     }
     function checkCommon(){
+        new InvalidArgumentException("content is err");
+
         if(empty($this->smsData["stage"])){
             new InvalidArgumentException("stage is null");
         }
@@ -41,7 +43,7 @@ class MessageDeal
         return $this;
     }
     function createAndCheckStageData(){
-        $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
+
         $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
         $this->getOtherData($this->smsData);
         $this->content=Tool::combine_template($this->smsData,$this->messageTemplate[$this->smsData["stage"]]["template"]);
@@ -75,7 +77,7 @@ class MessageDeal
             $data["content"]=$this->content;
             $data["rev_users"]=json_encode($this->rev_users);
             $data["user_id"]=$value;
-            $data["send_time"]=date('Y-m-d H:i:s',$this->smsData['time']);
+            $data["send_time"]=$this->smsData['time'];
             $data["created_at"]=date('Y-m-d H:i:s',$time);
 
             $this->smsRedisData['sms_id']=$db->insert("message",$data);
@@ -105,15 +107,35 @@ private function getOtherData(&$data){
                 if(empty($data["dev_no"])){
                     new InvalidArgumentException("dev_no is null");
                 }
-                $data["areas_name"]=$zhiyuandata->getAreasNameFromDevNo();
-                $data["pro_name"]=$zhiyuandata->getProNameFromDevNo();
+                $rs=$zhiyuandata->getProNameAreasNameFromDevNo($data["dev_no"]);
+                if(empty($rs)){
+                    new InvalidArgumentException("dev_no result is null");
+                }
+                if(empty($rs["pro_name"])){
+                    new InvalidArgumentException("pro_name is null");
+                }
+                if(empty($rs["areas_name"])){
+                    new InvalidArgumentException("areas_name is null");
+                }
+                $data["areas_name"]=$rs["areas_name"];
+                $data["pro_name"]=$rs["pro_name"];
             break;
             case 1002:
                 if(empty($data["dev_no"])){
                     new InvalidArgumentException("dev_no is null");
                 }
-                $data["areas_name"]=$zhiyuandata->getAreasNameFromDevNo();
-                $data["pro_name"]=$zhiyuandata->getProNameFromDevNo();
+                $rs=$zhiyuandata->getProNameAreasNameFromDevNo($data["dev_no"]);
+                if(empty($rs)){
+                    new InvalidArgumentException("dev_no result is null");
+                }
+                if(empty($rs["pro_name"])){
+                    new InvalidArgumentException("pro_name is null");
+                }
+                if(empty($rs["areas_name"])){
+                    new InvalidArgumentException("areas_name is null");
+                }
+                $data["areas_name"]=$rs["areas_name"];
+                $data["pro_name"]=$rs["pro_name"];
             case 1003:
                 if(empty($data["dev_no"])){
                     new InvalidArgumentException("dev_no is null");
@@ -121,7 +143,14 @@ private function getOtherData(&$data){
                 if(empty($data["target_values"])){
                     new InvalidArgumentException("target_values is null");
                 }
-                $data["pro_name"]=$zhiyuandata->getProNameFromDevNo();
+                $rs=$zhiyuandata->getProNameAreasNameFromDevNo($data["dev_no"]);
+                if(empty($rs)){
+                    new InvalidArgumentException("dev_no result is null");
+                }
+                if(empty($rs["pro_name"])){
+                    new InvalidArgumentException("pro_name is null");
+                }
+                $data["pro_name"]=$rs["pro_name"];
             break;
             default:
 

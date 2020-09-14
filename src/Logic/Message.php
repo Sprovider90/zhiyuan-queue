@@ -8,11 +8,11 @@
 
 namespace Sprovider90\Zhiyuanqueue\Logic;
 
-use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
+
 use Sprovider90\Zhiyuanqueue\Factory\Config;
 use Sprovider90\Zhiyuanqueue\Factory\MessageDeal;
 use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
-
+use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
 /**
  * Class Message
  * @package Sprovider90\Zhiyuanqueue\Logic
@@ -20,14 +20,30 @@ use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
  */
 class Message implements Icommand
 {
+    protected $client;
+    function initRedisMysql(){
+        $redisConfig=Config::get("Redis");
+        $this->client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
+
+    }
+    function test(){
+        $this->client ->lpush('messagelist','{
+    "stage": 1002,
+    "pro_name": "自定义项目不要动",
+    "areas_name": "必填区域",
+    "dev_no": "A103",
+    "time": "2020-09-14 17:07:41"
+}');
+    }
     function run (){
         if (ob_get_level()) {
             ob_end_clean();
         }
-        $redisConfig=Config::get("Redis");
+        $this->initRedisMysql();
+        $this->test();
         while (true) {
-            $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
-            $str=$client->lpop('messagelist');
+
+            $str=$this->client->lpop('messagelist');
             if (!empty($str)) {
                 $data=json_decode($str,true);
 
@@ -36,8 +52,8 @@ class Message implements Icommand
                 }
                 $this->dealsms($data);
             }
-            CliHelper::cliEcho("sleep 100ms");
-            usleep(100);
+            CliHelper::cliEcho("sleep 1000ms");
+            usleep(1000);
 
         }
 
@@ -51,8 +67,10 @@ class Message implements Icommand
     function dealsms($data){
         $message=new MessageDeal($data);
         try {
+//            new InvalidArgumentException("content is err");
+//            echo 4;exit;
             $message->checkCommon()->createAndCheckStageData()->checkStageContent()->checkUsers()->saveSms();
-        }catch (InvalidArgumentException $e){
+        }catch (\Exception $e){
 
             CliHelper::cliEcho(print_r($data,true).$e->getMessage());
         }

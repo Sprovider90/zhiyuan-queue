@@ -20,16 +20,27 @@ use Sprovider90\Zhiyuanqueue\Model\Orm;
 
 class Breakdown implements Icommand
 {
+    protected $client;
+    protected $db;
+    function initRedisMysql(){
+        $redisConfig=Config::get("Redis");
+        $this->client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
 
+        $this->db=new Orm();
 
+    }
+    function test(){
+        $this->client ->lpush('breakdown','{"monitorId":"39","breakdownType":"2","breakdownInfo":"数据异常","updateTime":"2020-09-14 01:00:02","projectId":"29","deviceId":"A103","status":1,"timestamp":"2020-09-14 16:50:00.000"}');
+    }
     function run (){
         if (ob_get_level()) {
             ob_end_clean();
         }
-        $redisConfig=Config::get("Redis");
+        $this->initRedisMysql();
+        //$this->test();
         while (true) {
-            $client = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
-            $str=$client->lpop('breakdown');
+
+            $str=$this->client ->lpop('breakdown');
             if (!empty($str)) {
                 $data=json_decode($str,true);
 
@@ -38,8 +49,8 @@ class Breakdown implements Icommand
                 }
                 $this->deal($data);
             }
-            CliHelper::cliEcho("sleep 100ms");
-            usleep(100);
+            CliHelper::cliEcho("sleep 1000ms");
+            usleep(1000);
 
         }
 
@@ -50,33 +61,40 @@ class Breakdown implements Icommand
 
     public function deal($yingjian)
     {
-        $data=[];
-        if(!empty($yingjian)){
-            $yingjian_arr[0]=$yingjian;
-            foreach ($yingjian_arr as $k=>$v) {
-                $tmp=[];
-                $tmp["project_id"]=$v["projectId"];
-                $tmp["device_id"]=$v["deviceId"];
-                $tmp["type"]=$v["breakdownType"];
-                $tmp["happen_time"]=$v["timestamp"];
-                $tmp["created_at"]=date('Y-m-d H:i:s',time());
-                $data[]=$tmp;
-            }
 
-            $this->saveToMysql($data);
+        if(!empty($yingjian)){
+            if($yingjian["breakdownType"]==2){
+                $this->toMessage($yingjian["deviceId"]);
+            }
+            $tmp=[];
+            $tmp["project_id"]=$yingjian["projectId"];
+            $tmp["device_id"]=$yingjian["deviceId"];
+            $tmp["type"]=$yingjian["breakdownType"];
+            $tmp["happen_time"]=$yingjian["timestamp"];
+            $tmp["created_at"]=date('Y-m-d H:i:s',time());
+
+            $this->saveToMysql($tmp);
         }
 
        return $this;
     }
     function saveToMysql($data)
     {
-
         if(!empty($data)){
-            $db=new Orm();
-            $db->insert("breakdowns",$data);
+            $this->db->insert("breakdowns",$data);
         }
 
     }
-// 数组转换
+    function toMessage($deviceId)
+    {
+        $arr=[];
+        $arr["stage"]=1002;
+        $arr["dev_no"]=$deviceId;
+        $arr["time"]=date('Y-m-d H:i:s',time());
+        $this->client ->rpush('messagelist',json_encode($arr));
+        return ;
+
+    }
+
     
 }

@@ -1,0 +1,57 @@
+Array
+(
+    [TVOC] => 0.75
+    [monitorId] => 37
+    [formaldehyde] => 0.09
+    [PM25] => 29.999
+    [CO2] => 99.99
+    [temperature] => 30
+    [humidity] => 19
+    [updateTime] => 2020-09-13 16:36:43
+    [projectId] => 29
+    [deviceId] => A101
+    [status] => 1
+    [timestamp] => 2020-09-13 22:00:00
+    [proTrigger_humidity] => Array
+        (
+            [0] => 20
+            [1] => 50
+        )
+
+    [proTrigger_temperature] => Array
+        (
+            [0] => 0
+            [1] => 20
+        )
+
+    [proTrigger_formaldehyde] => Array
+        (
+            [0] => 0.1
+            [1] => 0.2
+        )
+
+    [proTrigger_PM25] => Array
+        (
+            [0] => 30
+            [1] => 50
+        )
+
+    [proTrigger_CO2] => Array
+        (
+            [0] => 100
+            [1] => 500
+        )
+
+    [proTrigger_TVOC] => Array
+        (
+            [0] => 0.3
+            [1] => 0.5
+        )
+
+    [proTrigger_thresholds_name] => 六项指标
+    [check_result] => Array
+        (
+            [TVOC] => wuran
+        )
+
+)
