@@ -76,10 +76,13 @@ class NotNotice
         foreach ($this->zhibaos as $k=>$v) {
             //$v="formaldehyde";
 
-            if(isset($originaldata_arr["proTrigger_".$v]) && $originaldata_arr["proTrigger_".$v]!==NULL && ($originaldata_arr[$v] >= $originaldata_arr["proTrigger_".$v][1]*($this->data["percentage"]))){
-                $this->is_send=1;
-                $this->no_send_reason=[];
-                $this->target_name.=$k.",";
+            if(isset($originaldata_arr["proTrigger_".$v]) && $originaldata_arr["proTrigger_".$v]!==NULL){
+                if(bccomp($originaldata_arr[$v],$originaldata_arr["proTrigger_".$v][1]*$this->data["percentage"],3)>=0){
+                    $this->is_send=1;
+                    $this->no_send_reason=[];
+                    $this->target_name.=$k.",";
+                }
+
             }
         }
         if($this->target_name) $this->target_name=substr($this->target_name,0,-1);

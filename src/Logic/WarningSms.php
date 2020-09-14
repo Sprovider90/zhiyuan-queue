@@ -192,22 +192,25 @@ class WarningSms implements Icommand
                     }
                     //触发预警消息列表&&判定指标的空气质量
                     //污染
-                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][1] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k][1]) {
-
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>[$k=>"wuran"]]);
-                        continue;
+                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][1] !== NULL) {
+                        if(bccomp($yingjian_v[$k],$yingjian_v["proTrigger_" . $k][1],3)>=0) {
+                            $result[$yingjian_v["projectId"] . "-" . $yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result" => [$k => "wuran"]]);
+                            continue;
+                        }
                     }
                     //合格
-                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][0] !== NULL && $yingjian_v[$k] >= $yingjian_v["proTrigger_" . $k][0]) {
-
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>[$k=>"hege"]]);
-                        continue;
+                    if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][0] !== NULL) {
+                        if(bccomp($yingjian_v[$k],$yingjian_v["proTrigger_" . $k][0],3)>=0) {
+                            $result[$yingjian_v["projectId"] . "-" . $yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result" => [$k => "hege"]]);
+                            continue;
+                        }
                     }
                     //优质
                     if (in_array($k, $this->zhibaos) && $yingjian_v["proTrigger_" . $k][0] !== NULL && $yingjian_v[$k] < $yingjian_v["proTrigger_" . $k][0]) {
-
-                        $result[$yingjian_v["projectId"]."-".$yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result"=>[$k=>"youzhi"]]);
-                        continue;
+                        if(bccomp($yingjian_v[$k],$yingjian_v["proTrigger_" . $k][0],3)<0) {
+                            $result[$yingjian_v["projectId"] . "-" . $yingjian_v["monitorId"]][] = array_merge($yingjian_v, ["check_result" => [$k => "youzhi"]]);
+                            continue;
+                        }
                     }
                 }
 
