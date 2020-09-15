@@ -50,4 +50,7 @@ class Orm
     function last(){
         return $this->database->last();
     }
+    function update($table_name,$data=[],$where=[]){
+        return $this->database->update($table_name, $data, $where);
+    }
 }

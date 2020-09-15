@@ -14,6 +14,7 @@ use Sprovider90\Zhiyuanqueue\Helper\Tool;
 class Tag
 {
     protected $mysqlData=[];
+    protected $db;
     const YOUZHI=1;
     const HEGE=2;
     const WURAN=3;
@@ -64,6 +65,7 @@ class Tag
             $v["check_result"]=json_decode($v["check_result"],true);
         }
         $this->mysqlData=$data;
+        $this->db=new Orm();
         return $this;
     }
     function delOldData(){
@@ -168,11 +170,36 @@ class Tag
         }
 
         if(!empty($save_data)){
-            $db=new Orm();
-            $db->insertAll("tag",$save_data);
+
+            $this->insertOrUpdate($save_data);
+            $this->db->insertAll("tag_log",$save_data);
         }
 
 
+    }
+    function insertOrUpdate($save_data){
+        $insert=[];
+        $update=[];
+        foreach ($save_data as $k=>$v){
+            $one=$this->db->find("tag","id",["model_id"=>$v["model_id"],"model_type"=>$v["model_type"]]);
+            if(!empty($one)){
+                $update[]=$v;
+            }else{
+                $insert[]=$v;
+            }
+        }
+
+        if(!empty($insert)){
+            $this->db->insertAll("tag",$insert);
+        }
+        if(!empty($update)){
+            foreach ($update as $k=>$v){
+                unset($v["created_at"]);
+                $v["updated_at"]=date('Y-m-d H:i:s',time());
+                $this->db->update("tag",$v,["model_id"=>$v["model_id"],"model_type"=>$v["model_type"]]);
+            }
+            $this->db->insertAll("tag",$insert);
+        }
     }
 
 
