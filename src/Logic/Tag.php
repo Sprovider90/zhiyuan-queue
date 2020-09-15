@@ -14,7 +14,7 @@ class Tag implements Icommand
      * 给主体打标签（此入口作为修复数据用）
      */
     function run(){
-        $tag=new \Sprovider90\Zhiyuanqueue\Factory\Tag();
+        $tag=new \Sprovider90\Zhiyuanqueue\Factory\Tag("/data/yingjian/20200914/20200914200000.txt");
         $tag->run();
         return 1;
     }

@@ -198,7 +198,6 @@ class Tag
                 $v["updated_at"]=date('Y-m-d H:i:s',time());
                 $this->db->update("tag",$v,["model_id"=>$v["model_id"],"model_type"=>$v["model_type"]]);
             }
-            $this->db->insertAll("tag",$insert);
         }
     }
 
