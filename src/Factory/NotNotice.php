@@ -75,6 +75,12 @@ class NotNotice
 
         foreach ($this->zhibaos as $k=>$v) {
             //$v="formaldehyde";
+            $this->data["percentage"]=1.50;
+            echo $v;echo "\n";
+            echo $originaldata_arr[$v];echo "\n";
+            echo $originaldata_arr["proTrigger_".$v][1];echo "\n";
+            echo $this->data["percentage"];echo "\n";
+
 
             if(isset($originaldata_arr["proTrigger_".$v]) && $originaldata_arr["proTrigger_".$v]!==NULL){
                 if(bccomp($originaldata_arr[$v],$originaldata_arr["proTrigger_".$v][1]*$this->data["percentage"],3)>=0){
@@ -145,19 +151,20 @@ class NotNotice
                 $this->is_send=0;
                 $this->no_send_reason[]=6;
             }
+
             if($this->is_send==1){
 
-                if($_ENV["phonesms_onoff"] == "on"){
+                //if($_ENV["phonesms_onoff"] == "on"){
                     foreach ($mobile_arr as $k=>$v){
                         $this->target_name=str_replace(",","",$this->target_name);
-                        //echo $this->target_name;exit;
+                        echo $this->target_name;exit;
                         $err_message=Alimsg::sendsms($v,$proshortname,$pointname,$this->target_name);
                         if(!empty($err_message)){
                             $this->is_send=0;
                             $this->no_send_reason[]=9;
                         }
                     }
-                }
+               // }
             }
 
         }

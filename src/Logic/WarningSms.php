@@ -85,7 +85,7 @@ class WarningSms implements Icommand
                     $this->deal($json_arr);
                     $endTime = microtime(true);
                     $runTime = round($endTime - $start_time,6) * 1000;
-                    CliHelper::cliEcho("runtime-".$runTime);
+                    CliHelper::cliEcho("runtime-".$runTime." ".$file);
                 }
 
             }
