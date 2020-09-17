@@ -36,14 +36,14 @@ class PhoneNotice implements Icommand
                                 phonenotice
                         ) order by a.id asc limit 10;";
 
-            $sql = "SELECT
-                         a.*,b.id as projects_waring_setting_id,b.remind_time,b.percentage,b.notice_start_time,b.notice_end_time,notice_phone
-                    FROM
-                        `warnigs` a
-                    LEFT JOIN projects_waring_setting b ON a.project_id = b.project_id
-                    WHERE
-
-                        a.id =9469499 order by a.id asc limit 1;";
+//            $sql = "SELECT
+//                         a.*,b.id as projects_waring_setting_id,b.remind_time,b.percentage,b.notice_start_time,b.notice_end_time,notice_phone
+//                    FROM
+//                        `warnigs` a
+//                    LEFT JOIN projects_waring_setting b ON a.project_id = b.project_id
+//                    WHERE
+//
+//                        a.id =7674052 order by a.id asc limit 1;";
             $rs = $db->getAll($sql);
 
             if(!empty($rs)){
@@ -62,7 +62,7 @@ class PhoneNotice implements Icommand
                     usleep(100);
                 }
             }
-            exit;
+//            exit;
         }
     }
     function saveToMysql($data)

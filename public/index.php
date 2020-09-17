@@ -19,6 +19,7 @@ $dotenv->load();
 \Sprovider90\Zhiyuanqueue\Factory\Config::register(__DIR__."/../src/Config");
 
 
+ini_set('date.timezone','Asia/Shanghai');
 
 //run
 $builder = new Application('zhiyuanqueue', '@package_version@');
