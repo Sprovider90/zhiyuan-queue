@@ -133,7 +133,7 @@ class WarningSms implements Icommand
         $rs = $db->getAll($sql);
         if(!empty($rs)){
 
-            $this->proThresholdNow=Tool::arrayToArrayKey($rs,"project_id",1);
+            $this->proThresholdNow=Tool::arrayToArrayKey($rs,"project_id");
 
 
         }else{
@@ -169,6 +169,7 @@ class WarningSms implements Icommand
             }
             $v["thresholdinfo"]=$tmparr;
         }
+
         return $this;
     }
     function mergeData($kzarr,&$yingjian)
