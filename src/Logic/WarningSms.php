@@ -26,7 +26,7 @@ class WarningSms implements Icommand
         $doeds = array();
         $max_waring_time=1000000000000;
         $dirpath = "/data/yingjian/";
-        //$dirpath = "F:/yingjian/11/";
+        //$dirpath = "../testdata/yingjian/";
         $rundate=date('Ymd');
         $dirpath .= $rundate;
 
@@ -67,6 +67,7 @@ class WarningSms implements Icommand
 
 
                     $start_time = microtime(true);
+                    CliHelper::cliEcho($file." deal file start");
                     $filecontent=file_get_contents($file);
                     $json_arr=json_decode($filecontent,true);
 
@@ -80,9 +81,10 @@ class WarningSms implements Icommand
                     }
                     $this->file_name=$file;
                     //更新当前项目阈值
-                    $this->setProThresholdNow($json_arr[0]["timestamp"]);
+                    $this->setProStageThresholdNow();
 
                     $this->deal($json_arr);
+                    CliHelper::cliEcho($file." deal file end");
                     $endTime = microtime(true);
                     $runTime = round($endTime - $start_time,6) * 1000;
                     CliHelper::cliEcho("runtime-".$runTime." ".$file);
@@ -94,30 +96,46 @@ class WarningSms implements Icommand
         }
 
     }
-    public function setProThresholdNow($kztime){
+
+    /**
+     * 实时
+     */
+    public function setProStageThresholdNow(){
         $this->proThresholdNow=[];
         $db = new Orm();
         $sql = "SELECT
-                    a.project_id,a.thresholds_name,a.thresholdinfo
-                FROM
-                    pro_thresholds_log AS a,
-                    (
-                        SELECT
-                            project_id,
-                            max(id) AS maxid
-                        FROM
-                            pro_thresholds_log
-                        WHERE created_at<='".$kztime."'
-                        GROUP BY
-                            project_id
-                    ) AS b
-                WHERE
-                    a.id = b.maxid";
+                a.id AS project_id,
+                a.stage_id,
+                c.`name` AS thresholds_name,
+                CASE
+            WHEN d.thresholdinfo IS NULL THEN
+                'thresholds'
+            ELSE
+                'projects_thresholds'
+            END AS fromwhere,
+             CASE
+            WHEN d.thresholdinfo IS NULL THEN
+                c.thresholdinfo
+            ELSE
+                d.thresholdinfo
+            END AS thresholdinfo
+            FROM
+                `projects` a
+            LEFT JOIN projects_stages b ON a.stage_id = b.id
+            LEFT JOIN thresholds c ON b.threshold_id = c.id
+            LEFT JOIN projects_thresholds d ON a.stage_id = d.stage_id
+            WHERE
+                a. STATUS IN (4, 5, 6)
+            AND a.stage_id IS NOT NULL
+            AND b.deleted_at IS NULL
+            AND c.thresholdinfo IS NOT NULL";
 
         $rs = $db->getAll($sql);
         if(!empty($rs)){
 
-            $this->proThresholdNow=Tool::arrayToArrayKey($rs,"project_id");
+            $this->proThresholdNow=Tool::arrayToArrayKey($rs,"project_id",1);
+
+
         }else{
             CliHelper::cliEcho("no ProThresholdNow data");
         }
@@ -144,20 +162,22 @@ class WarningSms implements Icommand
 
     function dealKzData(&$kzarr)
     {
-
         foreach ($kzarr as $k=>&$v) {
             $tmparr=json_decode($v["thresholdinfo"],true);
             foreach ($tmparr as $tmparrk=>&$tmparrv) {
                 $tmparrv=explode("~",$tmparrv);
             }
             $v["thresholdinfo"]=$tmparr;
-
         }
         return $this;
     }
     function mergeData($kzarr,&$yingjian)
     {
         foreach ($yingjian as $k=>&$v){
+            if(!isset($kzarr[$v["projectId"]]["thresholdinfo"])){
+                CliHelper::cliEcho($v["projectId"]." no thresholdinfo!");
+                continue;
+            }
             foreach ($this->zhibaos as $k_zhibiao =>$v_zhibiao){
                 $v["proTrigger_".$v_zhibiao]=NULL;
             }
