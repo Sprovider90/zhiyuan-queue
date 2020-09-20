@@ -43,7 +43,7 @@ class WarningSms implements Icommand
 
         while (true) {
             if(date('Ymd')>$rundate){
-
+                $rundate=date('Ymd');
                 CliHelper::cliEcho($rundate."WarningSms任务处理完成,开启新一天的计算");
                 $doeds = array();
                 $dirpath=str_replace($rundate,date('Ymd'),$dirpath);
