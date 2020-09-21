@@ -43,8 +43,9 @@ class PhoneNotice implements Icommand
 //                    LEFT JOIN projects_waring_setting b ON a.project_id = b.project_id
 //                    WHERE
 //
-//                        a.id =7674267 order by a.id asc limit 1;";
+//                        a.id =7674052 order by a.id asc limit 1;";
             $rs = $db->getAll($sql);
+
             if(!empty($rs)){
                 foreach ($rs as $k=>$v){
                     if($v) {
@@ -61,7 +62,7 @@ class PhoneNotice implements Icommand
                     usleep(100);
                 }
             }
-           // exit;
+//            exit;
         }
     }
     function saveToMysql($data)

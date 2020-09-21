@@ -75,6 +75,12 @@ class NotNotice
 
         foreach ($this->zhibaos as $k=>$v) {
             //$v="formaldehyde";
+//            $this->data["percentage"]=1.50;
+//            echo $v;echo "\n";
+//            echo $originaldata_arr[$v];echo "\n";
+//            echo $originaldata_arr["proTrigger_".$v][1];echo "\n";
+//            echo $this->data["percentage"];echo "\n";
+
 
             if(isset($originaldata_arr["proTrigger_".$v]) && $originaldata_arr["proTrigger_".$v]!==NULL){
                 if(bccomp($originaldata_arr[$v],$originaldata_arr["proTrigger_".$v][1]*$this->data["percentage"],3)>=0){
@@ -112,13 +118,17 @@ class NotNotice
         if(!$this->is_continue){
             return $this;
         }
-        //判断X分钟内是否有发送成功过
+        //判断X分钟内是否有发送成功过\
+
+        $this->data["remind_time"]=60;
         if(!empty($this->data["remind_time"])){
             $db=new Orm();
             $project_id=$this->data["project_id"];
-            $xminsTime=date("Y-m-d H:i:s",strtotime("-".$this->data["remind_time"]." minutes"));;
+            $xminsTime=date("Y-m-d H:i:s",strtotime("-".$this->data["remind_time"]." minutes"));
+
             $sql="SELECT * FROM `phonenotice` where project_id={$project_id} and is_send=1 and created_at>{$xminsTime}";
             $rs=$db->getAll($sql);
+
             if(!empty($rs)){
                 $this->is_send=0;
                 $this->no_send_reason[]=4;
@@ -145,12 +155,13 @@ class NotNotice
                 $this->is_send=0;
                 $this->no_send_reason[]=6;
             }
+
             if($this->is_send==1){
 
                 if($_ENV["phonesms_onoff"] == "on"){
                     foreach ($mobile_arr as $k=>$v){
                         $this->target_name=str_replace(",","",$this->target_name);
-                        //echo $this->target_name;exit;
+
                         $err_message=Alimsg::sendsms($v,$proshortname,$pointname,$this->target_name);
                         if(!empty($err_message)){
                             $this->is_send=0;
