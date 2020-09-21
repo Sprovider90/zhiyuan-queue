@@ -57,6 +57,7 @@ class Javasay implements Icommand
 
             $str=$this->client ->lpop('javasay');
             if (!empty($str)) {
+                CliHelper::cliEcho($str);
                 $data=json_decode($str,true);
 
                 if(empty($data)){
