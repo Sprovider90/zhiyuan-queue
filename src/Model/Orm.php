@@ -6,7 +6,7 @@
  * Time: 15:09
  */
 
-namespace Sprovider90\ZhiyuanQueue\Model;
+namespace Sprovider90\Zhiyuanqueue\Model;
 
 use Medoo\Medoo;
 use Sprovider90\Zhiyuanqueue\Factory\Config;

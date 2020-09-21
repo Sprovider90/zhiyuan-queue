@@ -29,8 +29,23 @@ class Breakdown implements Icommand
         $this->db=new Orm();
 
     }
+//"event":"数据分类id（event字段序号）",
+//"deviceId": "设备id",
+//"monitorId": "监测点id",
+//"projectId": "项目id",
+//"timestamp": "2020-07-15 12:30:00",//事件发生时间
+
     function test(){
-        $this->client ->lpush('breakdown','{"monitorId":"39","breakdownType":"2","breakdownInfo":"数据异常","updateTime":"2020-09-14 01:00:02","projectId":"29","deviceId":"A103","status":1,"timestamp":"2020-09-14 16:50:00.000"}');
+        $this->client ->lpush('breakdown','{
+            "monitorId":"39",
+            "breakdownType":"2",
+            "breakdownInfo":"数据异常",
+            "updateTime":"2020-09-14 01:00:02",
+            "projectId":"29",
+            "deviceId":"A103",
+            "status":1,
+            "timestamp":"2020-09-14 16:50:00.000"
+        }');
     }
     function run (){
         if (ob_get_level()) {

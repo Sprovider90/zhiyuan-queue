@@ -10,7 +10,8 @@ use Sprovider90\Zhiyuanqueue\Logic\Message;
 require __DIR__."/../vendor/autoload.php";
 define('PUBLIC_PATH', __DIR__."/");
 define('APP_PATH', __DIR__."/../");
-
+error_reporting(E_ALL || ~E_NOTICE);
+ini_set('date.timezone','Asia/Shanghai');
 //.env
 $dotenv =  Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
