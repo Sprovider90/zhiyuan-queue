@@ -8,7 +8,7 @@
 namespace Sprovider90\Zhiyuanqueue\Factory\Message;
 
 use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
-use Sprovider90\Zhiyuanqueue\Model\zhiyuanData;
+use Sprovider90\Zhiyuanqueue\Model\ZhiyuanData;
 
 class Stage1001 implements IMessageTrategy
 {
