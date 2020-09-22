@@ -15,7 +15,7 @@ class Stage1005 implements IMessageTrategy
     protected $zhiyuandata;
     public function __construct()
     {
-        $this->zhiyuandata=new zhiyuanData();
+        $this->zhiyuandata=new ZhiyuanData();
     }
     function getTemplateRealData($data){
         return $data;

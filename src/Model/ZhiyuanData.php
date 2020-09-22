@@ -9,7 +9,7 @@
 namespace Sprovider90\Zhiyuanqueue\Model;
 use Sprovider90\Zhiyuanqueue\Model\Orm;
 
-class zhiyuanData
+class ZhiyuanData
 {
     function getProNameAreasNameFromDevNo($deviceId){
         $result=[];
