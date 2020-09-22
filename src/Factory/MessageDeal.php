@@ -11,7 +11,6 @@ namespace Sprovider90\Zhiyuanqueue\Factory;
 use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
 use Sprovider90\Zhiyuanqueue\Helper\Tool;
 use Sprovider90\Zhiyuanqueue\Model\Orm;
-use Sprovider90\Zhiyuanqueue\Model\Redis;
 use Sprovider90\Zhiyuanqueue\Model\zhiyuanData;
 
 class MessageDeal
@@ -83,23 +82,11 @@ class MessageDeal
             $this->smsRedisData['sms_id']=$db->insert("message",$data);
         }
         
-        // $this->smsRedisData['sms_time']=$time;
-        // $this->smsRedisData['smstype']=$this->type;
-        // $this->smsRedisData['user_ids']=$this->rev_users;
+
         return $this;
     }
-    // function saveUserSms(){
-    //     $user_ids=$this->smsRedisData["user_ids"];
-    //     $smstype=$this->smsRedisData["smstype"];
-    //     $sms_id=$this->smsRedisData["sms_id"];
-    //     $sms_time=$this->smsRedisData["sms_time"];
-    //     $redis=new Redis();
-    //     foreach ($user_ids as $k=>$user_id) {
-    //         $redis->zadd("smsuser:" . $user_id, $smstype . $sms_time, $sms_id);
-    //     }
-    //     return $this;
-    // }
-private function getOtherData(&$data){
+
+    private function getOtherData(&$data){
         $zhiyuandata=new zhiyuanData();
         switch ($data["stage"])
         {

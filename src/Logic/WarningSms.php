@@ -43,7 +43,7 @@ class WarningSms implements Icommand
 
         while (true) {
             if(date('Ymd')>$rundate){
-                
+
                 $doeds = array();
                 $dirpath=str_replace($rundate,date('Ymd'),$dirpath);
                 $rundate=date('Ymd');

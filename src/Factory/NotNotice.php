@@ -120,13 +120,13 @@ class NotNotice
         }
         //判断X分钟内是否有发送成功过\
 
-        $this->data["remind_time"]=60;
+        //$this->data["remind_time"]=60;
         if(!empty($this->data["remind_time"])){
             $db=new Orm();
             $project_id=$this->data["project_id"];
             $xminsTime=date("Y-m-d H:i:s",strtotime("-".$this->data["remind_time"]." minutes"));
 
-            $sql="SELECT * FROM `phonenotice` where project_id={$project_id} and is_send=1 and created_at>{$xminsTime}";
+            $sql="SELECT * FROM `phonenotice` where project_id={$project_id} and is_send=1 and created_at>'{$xminsTime}'";
             $rs=$db->getAll($sql);
 
             if(!empty($rs)){
