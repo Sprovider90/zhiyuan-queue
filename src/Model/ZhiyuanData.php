@@ -15,6 +15,7 @@ class zhiyuanData
         $result=[];
         $sql="SELECT
                 c.device_number,
+                a.name as position_name.
                 b.area_name,
                 d.`name`
             FROM
@@ -27,18 +28,76 @@ class zhiyuanData
         $db=new Orm();
         $rs=$db->getAll($sql);
         if(!empty($rs)){
-            $result["areas_name"]=$rs[0]["area_name"];
+            $result["pro_name"]=$rs[0]["name"];
+            $result["position_name"]=$rs[0]["position_name"];
             $result["pro_name"]=$rs[0]["name"];
         }
         return $result;
     }
 
-    function getUsersFromDevNo(){
-        return [1,2,3];
+    /**
+     * 设备所在的项目的所有用户
+     * @return array
+     */
+    function getUsersFromDevNo($dev_no){
+        $result=[];
+        $sql="SELECT
+        DISTINCT a.id
+        FROM
+        `users` a
+        INNER JOIN `devices` b ON a.customer_id = b.customer_id
+        WHERE
+        b.device_number = '{$dev_no}'";
+        $db=new Orm();
+        $rs=$db->getAll($sql);
+        if(!empty($rs)){
+            $result=array_column($rs,"id");
+        }
+        return $result;
     }
-    function getUsersFromPermissions()
+    /**
+     * 预警所在项目的所有用户
+     */
+    function getUsersFromWaring($warning_id){
+        $result=[];
+        $sql="select
+            DISTINCT a.id
+            from
+            users a
+            INNER JOIN projects b on a.customer_id=b.customer_id
+            INNER JOIN warnigs c on b.id=c.project_id
+            where c.id={$warning_id}";
+        $db=new Orm();
+        $rs=$db->getAll($sql);
+        if(!empty($rs)){
+            $result=array_column($rs,"id");
+        }
+        return $result;
+    }
+
+    /**
+     * 账号类型为“数据中心”且有“项目管理-解决方案-回复”权限的用户
+        账号类型为“客户平台”且有“项目管理-预警警报-发送消息”权限的用户
+     *  int usertype 账号类型,1是数据中心2是客户平台
+     * @return array
+     */
+    function getUsersFromPermissionsAndUserType($usertype,$permission_name)
     {
-        return [1, 2, 3];
+        $result=[];
+        $sql="select
+        DISTINCT a.id
+        from
+        users a
+        INNER JOIN model_has_roles b on a.id = b.model_id
+        INNER JOIN role_has_permissions c on b.role_id = c.role_id
+        INNER JOIN permissions d on c.permission_id = d.id
+        where d.name='{$permission_name}' and a.type={$usertype}";
+        $db=new Orm();
+        $rs=$db->getAll($sql);
+        if(!empty($rs)){
+            $result=array_column($rs,"id");
+        }
+        return $result;
     }
 
 }

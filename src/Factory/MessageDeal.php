@@ -11,8 +11,6 @@ namespace Sprovider90\Zhiyuanqueue\Factory;
 use Sprovider90\Zhiyuanqueue\Exceptions\InvalidArgumentException;
 use Sprovider90\Zhiyuanqueue\Helper\Tool;
 use Sprovider90\Zhiyuanqueue\Model\Orm;
-use Sprovider90\Zhiyuanqueue\Model\zhiyuanData;
-
 class MessageDeal
 {
     protected $type;
@@ -28,44 +26,57 @@ class MessageDeal
         return $this;
     }
     function checkCommon(){
-        new InvalidArgumentException("content is err");
-
-        if(empty($this->smsData["stage"])){
-            new InvalidArgumentException("stage is null");
-        }
-        if(empty($this->smsData["time"])){
-            new InvalidArgumentException("time is null");
+        foreach ($this->messageTemplate["commonCheck"] as $k=>$v){
+            if(empty($this->smsData[$v])){
+                throw new InvalidArgumentException($v." is null");
+            }
         }
         if(!in_array($this->smsData["stage"],array_keys($this->messageTemplate))){
-            new InvalidArgumentException("stage is err");
+            throw new InvalidArgumentException("stage is err");
         }
         return $this;
     }
-    function createAndCheckStageData(){
-
+    function requestCheck(){
+        foreach ($this->messageTemplate[$this->smsData["stage"]]["requestCheck"] as $k=>$v){
+            if(empty($this->smsData[$v])){
+                throw new InvalidArgumentException($v." is null");
+            }
+        }
+        return $this;
+    }
+    function getTemplateRealData(){
         $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
-        $this->getOtherData($this->smsData);
-        $this->content=Tool::combine_template($this->smsData,$this->messageTemplate[$this->smsData["stage"]]["template"]);
-        $this->rev_users=$this->getUsersByStage($this->smsData);
+        $class_name="Sprovider90\Zhiyuanqueue\Factory\Message\\"."Stage".$this->smsData["stage"];
+        $fa=new MessageFactory(new $class_name);
+        $this->smsData=$fa->getTemplateRealData($this->smsData);
         return $this;
     }
-    function checkStageContent(){
-
-        if(strpos($this->content,'${') !== false){
-
-            new InvalidArgumentException("content is err");
+    function contentCheck(){
+        foreach ($this->messageTemplate[$this->smsData["stage"]]["templateContentCheck"] as $k=>$v){
+            if(empty($this->smsData[$v])){
+                throw new InvalidArgumentException($v." is null");
+            }
         }
-
         return $this;
     }
-    function checkUsers()
+    function createContent(){
+        $this->content=Tool::combine_template($this->smsData,$this->messageTemplate[$this->smsData["stage"]]["template"]);
+        return $this;
+    }
+    function usersCheck()
     {
         if(empty($this->rev_users)){
-            new InvalidArgumentException("rev_users is null");
+            throw new InvalidArgumentException("rev_users is null");
         }
         return $this;
     }
-
+    function createUsers(){
+        $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
+        $class_name="Sprovider90\Zhiyuanqueue\Factory\Message\\"."Stage".$this->smsData["stage"];
+        $fa=new MessageFactory(new $class_name);
+        $this->rev_users=$fa->getUsersByStage($this->smsData);
+        return $this;
+    }
     function saveSms(){
         $time=time();
         $db=new Orm();
@@ -81,91 +92,7 @@ class MessageDeal
 
             $this->smsRedisData['sms_id']=$db->insert("message",$data);
         }
-        
-
         return $this;
-    }
-
-    private function getOtherData(&$data){
-        $zhiyuandata=new zhiyuanData();
-        switch ($data["stage"])
-        {
-            case 1001:
-                if(empty($data["dev_no"])){
-                    new InvalidArgumentException("dev_no is null");
-                }
-                $rs=$zhiyuandata->getProNameAreasNameFromDevNo($data["dev_no"]);
-                if(empty($rs)){
-                    new InvalidArgumentException("dev_no result is null");
-                }
-                if(empty($rs["pro_name"])){
-                    new InvalidArgumentException("pro_name is null");
-                }
-                if(empty($rs["areas_name"])){
-                    new InvalidArgumentException("areas_name is null");
-                }
-                $data["areas_name"]=$rs["areas_name"];
-                $data["pro_name"]=$rs["pro_name"];
-            break;
-            case 1002:
-                if(empty($data["dev_no"])){
-                    new InvalidArgumentException("dev_no is null");
-                }
-                $rs=$zhiyuandata->getProNameAreasNameFromDevNo($data["dev_no"]);
-                if(empty($rs)){
-                    new InvalidArgumentException("dev_no result is null");
-                }
-                if(empty($rs["pro_name"])){
-                    new InvalidArgumentException("pro_name is null");
-                }
-                if(empty($rs["areas_name"])){
-                    new InvalidArgumentException("areas_name is null");
-                }
-                $data["areas_name"]=$rs["areas_name"];
-                $data["pro_name"]=$rs["pro_name"];
-            case 1003:
-                if(empty($data["dev_no"])){
-                    new InvalidArgumentException("dev_no is null");
-                }
-                if(empty($data["target_values"])){
-                    new InvalidArgumentException("target_values is null");
-                }
-                $rs=$zhiyuandata->getProNameAreasNameFromDevNo($data["dev_no"]);
-                if(empty($rs)){
-                    new InvalidArgumentException("dev_no result is null");
-                }
-                if(empty($rs["pro_name"])){
-                    new InvalidArgumentException("pro_name is null");
-                }
-                $data["pro_name"]=$rs["pro_name"];
-            break;
-            default:
-
-        }
-        return ;
-    }
-    private  function getUsersByStage(&$data){
-        $users=[];
-        $zhiyuandata=new zhiyuanData();
-        switch ($data["stage"])
-        {
-            case 1001:
-                $users=$zhiyuandata->getUsersFromDevNo($data["dev_no"]);
-                break;
-            case 1002:
-                $users=$zhiyuandata->getUsersFromDevNo($data["dev_no"]);
-            case 1003:
-                $users=$zhiyuandata->getUsersFromDevNo($data["dev_no"]);
-                break;
-            case 1004:
-                $users=$zhiyuandata->getUsersFromPermissions(["数据中心回复权限","解决方案回复权限"]);
-                break;
-            case 1005:
-                $users=$zhiyuandata->getUsersFromPermissions(["客户平台发送消息权限","预报预警发送消息权限"]);
-                break;
-            default:
-        }
-        return $users;
     }
 
 }

@@ -67,12 +67,9 @@ class Message implements Icommand
     function dealsms($data){
         $message=new MessageDeal($data);
         try {
-//            new InvalidArgumentException("content is err");
-//            echo 4;exit;
-            $message->checkCommon()->createAndCheckStageData()->checkStageContent()->checkUsers()->saveSms();
+            $message->checkCommon()->requestCheck()->getTemplateRealData()->contentCheck()->createContent()->usersCheck()->createUsers()->saveSms();
         }catch (\Exception $e){
-
-            CliHelper::cliEcho(print_r($data,true).$e->getMessage());
+            CliHelper::cliEcho(print_r($data,true).$e->getMessage());exit;
         }
 
     }
