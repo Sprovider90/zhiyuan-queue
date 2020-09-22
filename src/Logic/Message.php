@@ -27,20 +27,22 @@ class Message implements Icommand
 
     }
     function test(){
-        $this->client ->lpush('messagelist','{
-    "stage": 1002,
-    "pro_name": "自定义项目不要动",
-    "areas_name": "必填区域",
-    "dev_no": "A103",
-    "time": "2020-09-14 17:07:41"
-}');
+
+        $this->client ->rpush('messagelist','{"stage":1001,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('messagelist','{"stage":1002,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('messagelist','{"stage":1003,"dev_no":"A001","warnig_id":"10058686","target_values":"甲醛，CO2","time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('messagelist','{"stage":1004,"time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('messagelist','{"stage":1005,"time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('messagelist','{"stage":1006,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('messagelist','{"stage":1007,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+
     }
     function run (){
         if (ob_get_level()) {
             ob_end_clean();
         }
         $this->initRedisMysql();
-        $this->test();
+        //$this->test();
         while (true) {
 
             $str=$this->client->lpop('messagelist');
@@ -65,12 +67,13 @@ class Message implements Icommand
      * 1.入库
      */
     function dealsms($data){
+        CliHelper::cliEcho(json_encode($data,true)."     start");
         $message=new MessageDeal($data);
         try {
-            $message->checkCommon()->requestCheck()->getTemplateRealData()->contentCheck()->createContent()->usersCheck()->createUsers()->saveSms();
+            $message->checkCommon()->requestCheck()->getRealData()->realDataCheck()->createContent()->getUsers()->usersCheck()->saveSms();
         }catch (\Exception $e){
-            CliHelper::cliEcho(print_r($data,true).$e->getMessage());exit;
+            CliHelper::cliEcho(json_encode($data,true)."     ".$e->getMessage());
         }
-
+        CliHelper::cliEcho(json_encode($data,true)."     end");
     }
 }

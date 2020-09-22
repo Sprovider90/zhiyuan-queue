@@ -43,7 +43,7 @@ class PhoneNotice implements Icommand
 //                    LEFT JOIN projects_waring_setting b ON a.project_id = b.project_id
 //                    WHERE
 //
-//                        a.id =12174363 order by a.id asc limit 1;";
+//                        a.id =323 order by a.id asc limit 1;";
             $rs = $db->getAll($sql);
 
             if(!empty($rs)){
@@ -54,6 +54,7 @@ class PhoneNotice implements Icommand
                         list($is_send,$no_send_reason)=$notNotice->init()->CheckData()->isPercentage()->noBetweenNoticeTime()->frequency()->notice()->getResult();
 
                         $data=$this->TurnDataToMysql($v,$is_send,$no_send_reason);
+
                         $this->saveToMysql($data);
                     }else{
                         CliHelper::cliEcho(" no data sleep 1s");
@@ -63,7 +64,7 @@ class PhoneNotice implements Icommand
                     usleep(100);
                 }
             }
-//            exit;
+//           exit;
         }
     }
     function saveToMysql($data)
@@ -82,6 +83,7 @@ class PhoneNotice implements Icommand
         $result["projectsetting_kz_json"]=json_encode($data);
         $result["is_send"]=$is_send;
         $result["project_id"]=$data["project_id"];
+        $result["point_id"]=$data["point_id"];
         $result["no_send_reason"]=$no_send_reason;
         $result["created_at"]=date('Y-m-d H:i:s',time());
         return $result;

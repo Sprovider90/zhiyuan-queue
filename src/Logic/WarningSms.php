@@ -7,6 +7,7 @@
  */
 
 namespace Sprovider90\Zhiyuanqueue\Logic;
+use Sprovider90\Zhiyuanqueue\Factory\Config;
 use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
 use Sprovider90\Zhiyuanqueue\Model\Orm;
 use Sprovider90\Zhiyuanqueue\Helper\Tool;
@@ -21,6 +22,12 @@ class WarningSms implements Icommand
     protected $proThresholdNow=[];
     protected $file_name="";
     protected $zhibaos=["humidity","temperature","formaldehyde","PM25","CO2","TVOC"];
+    protected $redis;
+    public function __construct()
+    {
+        $redisConfig=Config::get("Redis");
+        $this->redis = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
+    }
 
     function run(){
         $doeds = array();
@@ -133,10 +140,7 @@ class WarningSms implements Icommand
 
         $rs = $db->getAll($sql);
         if(!empty($rs)){
-
             $this->proThresholdNow=Tool::arrayToArrayKey($rs,"project_id");
-
-
         }else{
             CliHelper::cliEcho("no ProThresholdNow data");
         }
@@ -154,7 +158,10 @@ class WarningSms implements Icommand
         $kzarr=$this->proThresholdNow;
 
         $points=$this->dealKzData($kzarr)->mergeData($kzarr,$yingjian)->getTriggerPonits($yingjian);;
-        $this->saveToMysql($points);
+        $this->saveToMysqlAndMessage($points);
+
+
+
         //刷新标签数据
         $tag=new \Sprovider90\Zhiyuanqueue\Factory\Tag();
         $tag->run($this->file_name);
@@ -240,14 +247,32 @@ class WarningSms implements Icommand
         }
         return $result;
     }
-    function saveToMysql($data)
+    function message($device_id,$warnig_id,$threshold_keys)
+    {
+        if($threshold_keys && $warnig_id) {
+            $arr = [];
+            $arr["stage"] = 1003;
+            $arr["dev_no"] = $device_id;
+            $arr["warnig_id"] = $warnig_id;
+            $arr["target_values"] = $threshold_keys;
+            $arr["time"] = date('Y-m-d H:i:s', time());
+            $this->redis->rpush('messagelist', json_encode($arr));
+        }
+    }
+    function saveToMysqlAndMessage($data)
     {
         $data=$this->TurnDataToMysql($data);
-        if(!empty($data)){
-            $db=new Orm();
-            $db->insert("warnigs",$data);
-        }
 
+        if(!empty($data)){
+
+            $db=new Orm();
+            foreach ($data as $k=>$v){
+                $id=$db->insert("warnigs",$v);
+                $this->message($v["device_id"],$id,$v["threshold_keys"]);
+            }
+
+        }
+        return $data;
     }
     function TurnDataToMysql($data)
     {
@@ -262,6 +287,7 @@ class WarningSms implements Icommand
                     if($v_k==0){
                         $tmp["project_id"]=$v_v["projectId"];
                         $tmp["point_id"]=$v_v["monitorId"];
+                        $tmp["device_id"]=$v_v["deviceId"];
                         $tmp["waring_time"]=$v_v["timestamp"];
                         $tmp["thresholds_name"]=$v_v["proTrigger_thresholds_name"];
                         $tmp["created_at"]=date('Y-m-d H:i:s',time());

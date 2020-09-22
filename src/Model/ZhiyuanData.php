@@ -14,23 +14,28 @@ class zhiyuanData
     function getProNameAreasNameFromDevNo($deviceId){
         $result=[];
         $sql="SELECT
-                c.device_number,
-                a.name as position_name.
-                b.area_name,
-                d.`name`
-            FROM
-                devices c
-            LEFT JOIN projects_positions a ON c.id = a.device_id
-            LEFT JOIN projects_areas b ON a.area_id = b.id
-            LEFT JOIN projects d ON b.project_id = d.id
-            WHERE
-                c.device_number = '".$deviceId."'";
+            c.device_number,
+            a. NAME AS position_name,
+            b.area_name,
+            d.`name`
+        FROM
+            devices c
+        LEFT JOIN projects_positions a ON c.id = a.device_id
+        LEFT JOIN projects_areas b ON a.area_id = b.id
+        LEFT JOIN projects d ON b.project_id = d.id
+        WHERE
+            a.deleted_at IS NULL
+        AND b.deleted_at IS NULL
+        AND c.deleted_at IS NULL
+        AND d.deleted_at IS NULL
+        AND c.device_number = '".$deviceId."'";
+
         $db=new Orm();
         $rs=$db->getAll($sql);
         if(!empty($rs)){
             $result["pro_name"]=$rs[0]["name"];
             $result["position_name"]=$rs[0]["position_name"];
-            $result["pro_name"]=$rs[0]["name"];
+            $result["areas_name"]=$rs[0]["area_name"];
         }
         return $result;
     }

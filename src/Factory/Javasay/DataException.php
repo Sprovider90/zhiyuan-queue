@@ -41,8 +41,8 @@ class DataException implements IDataTrategy
         $arr["stage"]=1002;
         $arr["dev_no"]=$deviceId;
         $arr["time"]=date('Y-m-d H:i:s',time());
+        CliHelper::cliEcho("DataException ".json_encode($arr));
         $redis->rpush('messagelist',json_encode($arr));
         return ;
-
     }
 }

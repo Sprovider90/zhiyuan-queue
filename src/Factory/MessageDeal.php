@@ -44,14 +44,15 @@ class MessageDeal
         }
         return $this;
     }
-    function getTemplateRealData(){
-        $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
+    function getRealData(){
+
         $class_name="Sprovider90\Zhiyuanqueue\Factory\Message\\"."Stage".$this->smsData["stage"];
         $fa=new MessageFactory(new $class_name);
         $this->smsData=$fa->getTemplateRealData($this->smsData);
+
         return $this;
     }
-    function contentCheck(){
+    function realDataCheck(){
         foreach ($this->messageTemplate[$this->smsData["stage"]]["templateContentCheck"] as $k=>$v){
             if(empty($this->smsData[$v])){
                 throw new InvalidArgumentException($v." is null");
@@ -63,18 +64,18 @@ class MessageDeal
         $this->content=Tool::combine_template($this->smsData,$this->messageTemplate[$this->smsData["stage"]]["template"]);
         return $this;
     }
+
+    function getUsers(){
+        $class_name="Sprovider90\Zhiyuanqueue\Factory\Message\\"."Stage".$this->smsData["stage"];
+        $fa=new MessageFactory(new $class_name);
+        $this->rev_users=$fa->getUsersByStage($this->smsData);
+        return $this;
+    }
     function usersCheck()
     {
         if(empty($this->rev_users)){
             throw new InvalidArgumentException("rev_users is null");
         }
-        return $this;
-    }
-    function createUsers(){
-        $this->type=$this->messageTemplate[$this->smsData["stage"]]["type"];
-        $class_name="Sprovider90\Zhiyuanqueue\Factory\Message\\"."Stage".$this->smsData["stage"];
-        $fa=new MessageFactory(new $class_name);
-        $this->rev_users=$fa->getUsersByStage($this->smsData);
         return $this;
     }
     function saveSms(){
@@ -83,7 +84,7 @@ class MessageDeal
         foreach ($this->rev_users as $key => $value) {
             # code...
             $data=[];
-            $data["type"]=$this->type;
+            $data["type"]=$this->messageTemplate[$this->smsData["stage"]]["type"];
             $data["content"]=$this->content;
             $data["rev_users"]=json_encode($this->rev_users);
             $data["user_id"]=$value;

@@ -40,6 +40,7 @@ class Soc implements IDataTrategy
             $tmp["created_at"]=date('Y-m-d H:i:s',time());
             $tmp["soc"]=$data["battery"];
             $this->saveToMysql($tmp);
+            $this->toMessage($redis,$data["deviceId"],$data["battery"]);
         }
         return $this;
     }
@@ -54,8 +55,22 @@ class Soc implements IDataTrategy
             ], [
                 "device_number" => $data["device_id"]
             ]);
-            CliHelper::cliEcho($db->last());
+            CliHelper::cliEcho("Soc ".$db->last());
         }
+    }
+    function toMessage($redis,$deviceId,$battery)
+    {
+        if($battery<=20){
+            $arr=[];
+            $arr["stage"]=1006;
+            if($battery<=10) $arr["stage"]=1007;
+            $arr["dev_no"]=$deviceId;
+            $arr["time"]=date('Y-m-d H:i:s',time());
+
+            CliHelper::cliEcho("Soc ".json_encode($arr));
+            $redis->rpush('messagelist',json_encode($arr));
+        }
+        return ;
     }
 
 }

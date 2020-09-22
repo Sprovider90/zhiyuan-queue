@@ -12,9 +12,9 @@ class MessageFactory
         $this->iMessageTrategy=$iMessageTrategy;
     }
     function getTemplateRealData($data){
-        $this->iMessageTrategy->getTemplateRealData($data);
+        return $this->iMessageTrategy->getTemplateRealData($data);
     }
     function getUsersByStage($data){
-        $this->iMessageTrategy->getUsersByStage($data);
+        return $this->iMessageTrategy->getUsersByStage($data);
     }
 }

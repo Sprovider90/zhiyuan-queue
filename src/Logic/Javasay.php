@@ -26,12 +26,12 @@ class Javasay implements Icommand
     }
     function test(){
         //正常场景
-//        $this->client ->lpush('javasay','{"event":"1","monitorId":"39","projectId":"29","deviceId":"D101","battery":"30","timestamp":"2020-09-14 16:50:00"}');
-//        $this->client ->lpush('javasay','{"event":"2","monitorId":"39","projectId":"29","deviceId":"A103","timestamp":"2020-09-14 16:50:00"}');
-//        $this->client ->lpush('javasay','{"event":"3","monitorId":"39","projectId":"29","deviceId":"A103","timestamp":"2020-09-14 16:50:00"}');
+//        $this->client ->lpush('javasay1','{"event":"1","monitorId":"39","projectId":"29","deviceId":"D101","battery":"10","timestamp":"2020-09-14 16:50:00"}');
+//        $this->client ->lpush('javasay1','{"event":"2","monitorId":"39","projectId":"29","deviceId":"A103","timestamp":"2020-09-14 16:50:00"}');
+//        $this->client ->lpush('javasay1','{"event":"3","monitorId":"39","projectId":"29","deviceId":"A103","timestamp":"2020-09-14 16:50:00"}');
         //异常场景
-//        $this->client ->lpush('javasay','{"event":"3"}');
-//        $this->client ->lpush('javasay','{"event":"1","monitorId":"39","projectId":"29","deviceId":"D101","timestamp":"2020-09-14 16:50:00"}');
+        //$this->client ->rpush('javasay','{"event":"3"}');
+        //$this->client ->rpush('javasay','{"event":"1","monitorId":"39","projectId":"29","deviceId":"D101","timestamp":"2020-09-14 16:50:00"}');
     }
     function checkNoset($data){
         $result="";
