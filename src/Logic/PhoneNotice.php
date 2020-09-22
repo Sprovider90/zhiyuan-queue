@@ -44,11 +44,12 @@ class PhoneNotice implements Icommand
 //                    WHERE
 //
 //                        a.id =12174363 order by a.id asc limit 1;";
-//            $rs = $db->getAll($sql);
+            $rs = $db->getAll($sql);
 
             if(!empty($rs)){
                 foreach ($rs as $k=>$v){
                     if($v) {
+                        CliHelper::cliEcho($v["id"]." start ..");
                         $notNotice=new NotNotice($v);
                         list($is_send,$no_send_reason)=$notNotice->init()->CheckData()->isPercentage()->noBetweenNoticeTime()->frequency()->notice()->getResult();
 
