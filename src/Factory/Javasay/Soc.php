@@ -68,7 +68,7 @@ class Soc implements IDataTrategy
             $arr["time"]=date('Y-m-d H:i:s',time());
 
             CliHelper::cliEcho("Soc ".json_encode($arr));
-            $redis->rpush('messagelist',json_encode($arr));
+            $redis->rpush('zhiyuan_database_messagelist',json_encode($arr));
         }
         return ;
     }

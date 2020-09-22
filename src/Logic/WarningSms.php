@@ -256,7 +256,7 @@ class WarningSms implements Icommand
             $arr["warnig_id"] = $warnig_id;
             $arr["target_values"] = $threshold_keys;
             $arr["time"] = date('Y-m-d H:i:s', time());
-            $this->redis->rpush('messagelist', json_encode($arr));
+            $this->redis->rpush('zhiyuan_database_messagelist', json_encode($arr));
         }
     }
     function saveToMysqlAndMessage($data)
