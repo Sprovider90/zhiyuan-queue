@@ -120,7 +120,7 @@ class NotNotice
         }
         //判断X分钟内是否有发送成功过\
 
-        $this->data["remind_time"]=60;
+        //$this->data["remind_time"]=60;
         if(!empty($this->data["remind_time"])){
             $db=new Orm();
             $project_id=$this->data["project_id"];
