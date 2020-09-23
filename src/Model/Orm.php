@@ -10,6 +10,7 @@ namespace Sprovider90\Zhiyuanqueue\Model;
 
 use Medoo\Medoo;
 use Sprovider90\Zhiyuanqueue\Factory\Config;
+use Sprovider90\Zhiyuanqueue\Helper\CliHelper;
 
 class Orm
 {
@@ -30,6 +31,7 @@ class Orm
     }
     function insert($table_name,$data=[]){
         $this->database->insert($table_name,$data);
+        CliHelper::cliEcho($this->last());
         return $this->database->id();
     }
     function insertAll($table_name,$data=[]){
