@@ -90,7 +90,7 @@ class MessageDeal
             $data["user_id"]=$value;
             $data["send_time"]=$this->smsData['time'];
             $data["created_at"]=date('Y-m-d H:i:s',$time);
-
+            $data["url"]=$this->messageTemplate[$this->smsData["stage"]]["url"];
             $this->smsRedisData['sms_id']=$db->insert("message",$data);
         }
         return $this;
