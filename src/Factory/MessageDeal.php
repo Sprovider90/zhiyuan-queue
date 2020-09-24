@@ -15,6 +15,7 @@ class MessageDeal
 {
     protected $type;
     protected $content;
+    protected $url;
     protected $rev_users;
     protected $smsData;
     protected $smsRedisData;
@@ -44,6 +45,11 @@ class MessageDeal
         }
         return $this;
     }
+
+    /**
+     * @return $this
+     * 获取content的衍生数
+     */
     function getRealData(){
 
         $class_name="Sprovider90\Zhiyuanqueue\Factory\Message\\"."Stage".$this->smsData["stage"];
@@ -64,7 +70,14 @@ class MessageDeal
         $this->content=Tool::combine_template($this->smsData,$this->messageTemplate[$this->smsData["stage"]]["template"]);
         return $this;
     }
-
+    function createUrl(){
+        $this->url=Tool::combine_template($this->smsData,$this->messageTemplate[$this->smsData["stage"]]["url"]);
+        return $this;
+    }
+    /**
+     * @return $this
+     * 获取用户的衍生数据
+     */
     function getUsers(){
         $class_name="Sprovider90\Zhiyuanqueue\Factory\Message\\"."Stage".$this->smsData["stage"];
         $fa=new MessageFactory(new $class_name);
@@ -74,7 +87,7 @@ class MessageDeal
     function usersCheck()
     {
         if(empty($this->rev_users)){
-            throw new InvalidArgumentException("rev_users is null");
+           throw new InvalidArgumentException("rev_users is null");
         }
         return $this;
     }
@@ -86,14 +99,12 @@ class MessageDeal
             $data=[];
             $data["type"]=$this->messageTemplate[$this->smsData["stage"]]["type"];
             $data["content"]=$this->content;
+            $data["url"]=$this->url;
             $data["rev_users"]=json_encode($this->rev_users);
             $data["user_id"]=$value;
             $data["send_time"]=$this->smsData['time'];
             $data["created_at"]=date('Y-m-d H:i:s',$time);
-//            if(isset($this->smsData['time'])){
-//
-//            }
-            $data["url"]=$this->messageTemplate[$this->smsData["stage"]]["url"];
+
             $this->smsRedisData['sms_id']=$db->insert("message",$data);
         }
         return $this;

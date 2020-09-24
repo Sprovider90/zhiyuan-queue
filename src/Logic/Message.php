@@ -28,13 +28,13 @@ class Message implements Icommand
     }
     function test(){
 
-        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1001,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
-        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1002,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
-        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1003,"dev_no":"A001","warnig_id":"10058686","target_values":"甲醛，CO2","time":"2020-09-14 17:07:41"}');
-        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1004,"time":"2020-09-14 17:07:41"}');
-        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1005,"time":"2020-09-14 17:07:41"}');
-        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1006,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
-        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1007,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+//        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1001,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+//        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1002,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('zhiyuan_database_messagelist1','{"stage":1003,"dev_no":"A001","warnig_id":"10058686","target_values":"甲醛，CO2","time":"2020-09-14 17:07:41"}');
+//        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1004,"time":"2020-09-14 17:07:41"}');
+//        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1005,"time":"2020-09-14 17:07:41"}');
+//        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1006,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
+//        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1007,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
 
     }
     function run (){
@@ -42,7 +42,7 @@ class Message implements Icommand
             ob_end_clean();
         }
         $this->initRedisMysql();
-        //$this->test();
+        $this->test();
         while (true) {
 
             $str=$this->client->lpop('zhiyuan_database_messagelist');
@@ -70,7 +70,7 @@ class Message implements Icommand
         CliHelper::cliEcho(json_encode($data,true)."     start");
         $message=new MessageDeal($data);
         try {
-            $message->checkCommon()->requestCheck()->getRealData()->realDataCheck()->createContent()->getUsers()->usersCheck()->saveSms();
+            $message->checkCommon()->requestCheck()->getRealData()->realDataCheck()->createContent()->createUrl()->getUsers()->usersCheck()->saveSms();
         }catch (\Exception $e){
             CliHelper::cliEcho(json_encode($data,true)."     ".$e->getMessage());
         }
