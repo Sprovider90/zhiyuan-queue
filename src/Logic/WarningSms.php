@@ -22,6 +22,7 @@ class WarningSms implements Icommand
     protected $proThresholdNow=[];
     protected $file_name="";
     protected $zhibaos=["humidity","temperature","formaldehyde","PM25","CO2","TVOC"];
+    protected $zhibaos_hash=["humidity"=>"湿度","temperature"=>"温度","formaldehydecd .."=>"甲醛","PM25"=>"PM25","CO2"=>"CO2","TVOC"=>"TVOC"];
     protected $redis;
     public function __construct()
     {
