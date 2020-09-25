@@ -15,9 +15,11 @@ class ZhiyuanData
         $result=[];
         $sql="SELECT
             c.device_number,
+						a. id AS monitor_id,
             a. NAME AS position_name,
             b.area_name,
-            d.`name`
+            d.`name`,
+						d.`id` as project_id
         FROM
             devices c
         LEFT JOIN projects_positions a ON c.id = a.device_id
@@ -36,7 +38,11 @@ class ZhiyuanData
             $result["pro_name"]=$rs[0]["name"];
             $result["position_name"]=$rs[0]["position_name"];
             $result["areas_name"]=$rs[0]["area_name"];
+
+            $result["project_id"]=$rs[0]["project_id"];
+            $result["monitor_id"]=$rs[0]["monitor_id"];
         }
+
         return $result;
     }
 

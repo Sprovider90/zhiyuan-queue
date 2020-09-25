@@ -20,6 +20,8 @@ class Stage1003 implements IMessageTrategy
     function getTemplateRealData($data){
         $rs=$this->zhiyuandata->getProNameAreasNameFromDevNo($data["dev_no"]);
         $data["pro_name"]=$rs["pro_name"];
+        $data["project_id"]=$rs["project_id"];
+        $data["monitor_id"]=$rs["monitor_id"];
         return $data;
     }
     function getUsersByStage($data){
