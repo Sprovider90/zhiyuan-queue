@@ -45,7 +45,7 @@ class Message implements Icommand
         //$this->test();
         while (true) {
 
-            $str=$this->client->lpop('zhiyuan_database_messagelist1');
+            $str=$this->client->lpop('zhiyuan_database_messagelist');
             if (!empty($str)) {
                 $data=json_decode($str,true);
 
