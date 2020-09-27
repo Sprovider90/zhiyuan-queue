@@ -30,7 +30,7 @@ class Message implements Icommand
 
 //        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1001,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
 //        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1002,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
-        $this->client ->rpush('zhiyuan_database_messagelist1','{"stage":1003,"dev_no":"A001","warnig_id":"10058686","target_values":"甲醛，CO2","time":"2020-09-14 17:07:41"}');
+        $this->client ->rpush('zhiyuan_database_messagelist1','{"stage":1003,"dev_no":"A001","warnig_id":"1","target_values":"humidity","time":"2020-09-14 17:07:41"}');
 //        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1004,"time":"2020-09-14 17:07:41"}');
 //        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1005,"time":"2020-09-14 17:07:41"}');
 //        $this->client ->rpush('zhiyuan_database_messagelist','{"stage":1006,"dev_no":"A001","time":"2020-09-14 17:07:41"}');
@@ -45,7 +45,7 @@ class Message implements Icommand
         //$this->test();
         while (true) {
 
-            $str=$this->client->lpop('zhiyuan_database_messagelist');
+            $str=$this->client->lpop('zhiyuan_database_messagelist1');
             if (!empty($str)) {
                 $data=json_decode($str,true);
 

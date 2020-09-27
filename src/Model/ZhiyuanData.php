@@ -116,7 +116,13 @@ class ZhiyuanData
      * */
     function get_warnig_info($warnig_id)
     {
-
+        $result=[];
+        $db=new Orm();
+        $rs=$db->find("warnigs",$feilds="originaldata",$where=["id"=>$warnig_id]);
+        if(!empty($rs)){
+            $result=$rs["originaldata"];
+        }
+        return $result;
     }
 
 }
