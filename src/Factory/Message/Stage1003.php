@@ -33,6 +33,9 @@ class Stage1003 implements IMessageTrategy
         }
          return $result;
     }
+    protected function get_target_values_info($warnig_id){
+
+    }
     function getUsersByStage($data){
         return $this->zhiyuandata->getUsersFromWaring($data["warnig_id"]);
     }

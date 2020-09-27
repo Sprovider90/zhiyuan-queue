@@ -110,5 +110,13 @@ class ZhiyuanData
         }
         return $result;
     }
+    /*
+     * 获取预警数据详情
+     *
+     * */
+    function get_warnig_info($warnig_id)
+    {
+
+    }
 
 }
