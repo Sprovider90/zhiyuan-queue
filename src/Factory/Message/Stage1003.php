@@ -31,8 +31,7 @@ class Stage1003 implements IMessageTrategy
         foreach ($this->zhibaos_hash as $k=>$v){
             $result=str_replace($k,$v,$result);
         }
-        print_r($result);exit;
-        return $result;
+         return $result;
     }
     function getUsersByStage($data){
         return $this->zhiyuandata->getUsersFromWaring($data["warnig_id"]);
