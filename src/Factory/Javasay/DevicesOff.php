@@ -23,6 +23,7 @@ class DevicesOff implements IDataTrategy
             $tmp["happen_time"]=$data["timestamp"];
             $tmp["created_at"]=date('Y-m-d H:i:s',time());
             $this->saveToMysql($tmp);
+            $this->toMessage($redis,$data["deviceId"]);
         }
         return $this;
     }
@@ -34,6 +35,16 @@ class DevicesOff implements IDataTrategy
             $db->insert("breakdowns",$data);
             CliHelper::cliEcho($db->last());
         }
+    }
+    function toMessage($redis,$deviceId)
+    {
+        $arr=[];
+        $arr["stage"]=1001;
+        $arr["dev_no"]=$deviceId;
+        $arr["time"]=date('Y-m-d H:i:s',time());
+        CliHelper::cliEcho("DevicesOff ".json_encode($arr));
+        $redis->rpush('zhiyuan_database_messagelist',json_encode($arr));
+        return ;
     }
 
 }
