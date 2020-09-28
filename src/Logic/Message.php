@@ -42,10 +42,10 @@ class Message implements Icommand
             ob_end_clean();
         }
         $this->initRedisMysql();
-        //$this->test();
+        $this->test();
         while (true) {
 
-            $str=$this->client->lpop('zhiyuan_database_messagelist');
+            $str=$this->client->lpop('zhiyuan_database_messagelist1');
             if (!empty($str)) {
                 $data=json_decode($str,true);
 

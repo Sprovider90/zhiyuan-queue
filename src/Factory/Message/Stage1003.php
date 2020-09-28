@@ -14,7 +14,7 @@ use Sprovider90\Zhiyuanqueue\Model\ZhiyuanData;
 class Stage1003 implements IMessageTrategy
 {
     protected $zhiyuandata;
-    protected $zhibaos_hash=["humidity"=>"湿度","temperature"=>"温度","formaldehydecd"=>"甲醛","PM25"=>"PM25","CO2"=>"CO2","TVOC"=>"TVOC"];
+    protected $zhibaos_hash=["humidity"=>"湿度","temperature"=>"温度","formaldehyde"=>"甲醛","PM25"=>"PM25","CO2"=>"CO2","TVOC"=>"TVOC"];
     public function __construct()
     {
         $this->zhiyuandata=new ZhiyuanData();
@@ -25,6 +25,7 @@ class Stage1003 implements IMessageTrategy
         $data["pro_name"]=$rs["pro_name"];
         $data["project_id"]=$rs["project_id"];
         $data["monitor_id"]=$rs["monitor_id"];
+        $data["position_name"]=$rs["position_name"];
         $data["target_values"]=$this->get_target_values_info($data["target_values"],$data["warnig_id"]);
         $data["target_values"]=$this->turn_target_values($data["target_values"]);
 
