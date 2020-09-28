@@ -85,6 +85,13 @@ class Javasay implements Icommand
                     case 3:
                         $dealTrategy="DataLoss";
                     break;
+                    case 4:
+                        $dealTrategy="DevicesOff";
+                        break;
+                    case 6:
+                        $dealTrategy="DevicesOn";
+                        break;
+
                 }
                 $class_name="Sprovider90\Zhiyuanqueue\Factory\Javasay\\".$dealTrategy;
                 $fa=new \Sprovider90\Zhiyuanqueue\Factory\JavasayFactory(new $class_name);
