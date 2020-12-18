@@ -26,10 +26,10 @@ class Javasay implements Icommand
     }
     function test(){
         //正常场景
-        $this->client ->lpush('javasay1','{"event":"5","monitorId":"39","projectId":"29","deviceId":"A001","coordinate":"116.397128,39.916527","timestamp":"2020-09-14 16:50:00"}');
-        $this->client ->lpush('javasay1','{"event":"7","monitorId":"39","projectId":"29","deviceId":"A001","signal":"12223","timestamp":"2020-09-14 16:50:00"}');
-        $this->client ->lpush('javasay1','{"event":"8","monitorId":"39","projectId":"29","deviceId":"A001","timestamp":"2020-09-14 16:50:00"}');
-        $this->client ->lpush('javasay1','{"event":"9","monitorId":"39","projectId":"29","deviceId":"A001","timestamp":"2020-09-14 16:50:00"}');
+//        $this->client ->lpush('javasay1','{"event":"5","monitorId":"39","projectId":"29","deviceId":"A001","coordinate":"116.397128,39.916527","timestamp":"2020-09-14 16:50:00"}');
+//        $this->client ->lpush('javasay1','{"event":"7","monitorId":"39","projectId":"29","deviceId":"A001","signal":"12223","timestamp":"2020-09-14 16:50:00"}');
+//        $this->client ->lpush('javasay1','{"event":"8","monitorId":"39","projectId":"29","deviceId":"A001","timestamp":"2020-09-14 16:50:00"}');
+//        $this->client ->lpush('javasay1','{"event":"9","monitorId":"39","projectId":"29","deviceId":"A001","timestamp":"2020-09-14 16:50:00"}');
         //异常场景
         //$this->client ->rpush('javasay','{"event":"3"}');
         //$this->client ->rpush('javasay','{"event":"1","monitorId":"39","projectId":"29","deviceId":"D101","timestamp":"2020-09-14 16:50:00"}');
