@@ -53,19 +53,30 @@ class Tag
 
         if($rs) {
 
-
-            $this->init($rs)->delOldData()->pointTag()->areaTag()->projectTag()->saveToMysql();
+//监测点
+            $this->init($rs)->delOldData()->pointTag()->saveToMysql();
+            //区域
+            $data=(new TagAreaProject())->getData()->tag("area_id")->saveToMysql();
+            $this->insertOrUpdate($data);
+            //项目
+            $data=(new TagAreaProject())->getData()->tag("project_id")->saveToMysql();
+            $this->insertOrUpdate($data);
+            //->areaTag()->projectTag()
         }else{
             CliHelper::cliEcho(" no mysqldata");
         }
 
+        return;
+    }
+    function __construct(){
+        $this->db=new Orm();
     }
     function init($data){
         foreach ($data as $k=>&$v){
             $v["check_result"]=json_decode($v["check_result"],true);
         }
         $this->mysqlData=$data;
-        $this->db=new Orm();
+
         return $this;
     }
     function delOldData(){
@@ -95,6 +106,7 @@ class Tag
         return $this;
     }
     function areaTag(){
+
         $this->mysqlData=Tool::arrayToArrayKey($this->mysqlData,"area_id",1);
 
         foreach ($this->mysqlData as $k=>&$v) {
@@ -120,6 +132,7 @@ class Tag
     function projectTag(){
         $this->mysqlData=Tool::arrayKeyToArr($this->mysqlData);
         $this->mysqlData=Tool::arrayToArrayKey($this->mysqlData,"project_id",1);
+
         foreach ($this->mysqlData as $k=>&$v) {
             $arr = array_values(array_column($v, "areaTag"));
             foreach ($v as $kk=>&$vv) {
@@ -163,6 +176,8 @@ class Tag
                 $tmp["model_id"]=$v["point_id"];
                 $tmp["model_type"]=3;
                 $tmp["air_quality"]=$v["pointTag"];
+                $tmp["project_id"]=$v["project_id"];
+                $tmp["area_id"]=$v["area_id"];
                 $save_data[]=$tmp;
             }
 
@@ -180,6 +195,7 @@ class Tag
     function insertOrUpdate($save_data){
         $insert=[];
         $update=[];
+
         foreach ($save_data as $k=>$v){
             $one=$this->db->find("tag","id",["model_id"=>$v["model_id"],"model_type"=>$v["model_type"]]);
             if(!empty($one)){
@@ -200,7 +216,4 @@ class Tag
             }
         }
     }
-
-
-
 }
