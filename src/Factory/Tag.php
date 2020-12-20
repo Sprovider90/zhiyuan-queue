@@ -65,7 +65,7 @@ class Tag
         }else{
             CliHelper::cliEcho(" no mysqldata");
         }
-
+        echo "ok";exit;
         return;
     }
     function __construct(){
@@ -154,7 +154,9 @@ class Tag
     }
     function saveToMysql()
     {
-        $this->mysqlData=Tool::arrayKeyToArr($this->mysqlData);
+        //print_r($this->mysqlData);exit;
+        //$this->mysqlData=Tool::arrayKeyToArr($this->mysqlData);
+
         $save_data=[];
         foreach ($this->mysqlData as $k=>$v){
             $tmp=[];

@@ -15,7 +15,7 @@ class Tag implements Icommand
      */
     function run(){
 
-        $tag=new \Sprovider90\Zhiyuanqueue\Factory\Tag("/data/yingjian/20200914/20200914200000.txt");
+        $tag=new \Sprovider90\Zhiyuanqueue\Factory\Tag("/data/yingjian/20201220/20201220125000.txt");
 
         $tag->run();
         return 1;
