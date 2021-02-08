@@ -53,6 +53,7 @@ class DevicesOff implements IDataTrategy
             $db=new Orm();
             $db->update("devices", [
                 "run_status" => 2,
+                "state" => 2,
                 "updated_at"=>date('Y-m-d H:i:s',time())
             ], [
                 "device_number" => $data["device_id"]
