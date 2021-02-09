@@ -50,6 +50,8 @@ class Soc implements IDataTrategy
         if(!empty($data)){
             $db=new Orm();
             $db->update("devices", [
+                "run_status" => 1,
+                "state" => 1,
                 "soc" => $data["soc"],
                 "updated_at"=>date('Y-m-d H:i:s',time())
             ], [
