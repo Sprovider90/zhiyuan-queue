@@ -158,7 +158,7 @@ class WarningSms implements Icommand
         $kzarr=$this->proThresholdNow;
 
         $points=$this->dealKzData($kzarr)->mergeData($kzarr,$yingjian)->getTriggerPonits($yingjian);;
-        $this->saveToMysqlAndMessage($points);
+        $data=$this->saveToMysql($points);
 
 
 
@@ -166,6 +166,7 @@ class WarningSms implements Icommand
         $tag=new \Sprovider90\Zhiyuanqueue\Factory\Tag();
         $tag->run($this->file_name);
 
+        $this->saveToMessage($data);
     }
 
     function dealKzData(&$kzarr)
@@ -247,6 +248,13 @@ class WarningSms implements Icommand
         }
         return $result;
     }
+    function saveToMessage($data){
+        if(!empty($data)){
+            foreach ($data as $k=>$v){
+                $this->message($v["device_id"],$v["flag_warnigs_id"],$v["threshold_keys"]);
+            }
+        }
+    }
     function message($device_id,$warnig_id,$threshold_keys)
     {
         if($threshold_keys && $warnig_id) {
@@ -256,19 +264,21 @@ class WarningSms implements Icommand
             $arr["warnig_id"] = $warnig_id;
             $arr["target_values"] = $threshold_keys;
             $arr["time"] = date('Y-m-d H:i:s', time());
-            $this->redis->rpush('zhiyuan_database_messagelist', json_encode($arr));
+            $redisConfig=Config::get("Redis");
+            $redis = new \Predis\Client('tcp://'.$redisConfig["host"].':'.$redisConfig["port"]);
+            $redis->rpush('zhiyuan_database_messagelist', json_encode($arr));
         }
     }
-    function saveToMysqlAndMessage($data)
+    function saveToMysql($data)
     {
         $data=$this->TurnDataToMysql($data);
 
         if(!empty($data)){
 
             $db=new Orm();
-            foreach ($data as $k=>$v){
+            foreach ($data as $k=>&$v){
                 $id=$db->insert("warnigs",$v);
-                $this->message($v["device_id"],$id,$v["threshold_keys"]);
+                $v["flag_warnigs_id"]=$id;
             }
 
         }
