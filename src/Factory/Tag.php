@@ -65,7 +65,7 @@ class Tag
         }else{
             CliHelper::cliEcho(" no mysqldata");
         }
-        echo "ok";exit;
+
         return;
     }
     function __construct(){
